@@ -3,6 +3,16 @@
 > 给学生在手机上一个随时能说说话的树洞，给心理中心一块能看见整体情绪的看板。
 > Node.js + Express + SQLite 单进程实现，一条命令跑起来，学生端与中心端同时可用。
 
+## 预览
+
+| 学生端 · 倾诉对话 | 学生端 · 树洞晴雨表（仅存本机） |
+|---|---|
+| ![学生端倾诉对话](docs/screenshots/student-chat.png) | ![学生端树洞晴雨表](docs/screenshots/student-insight.png) |
+| **心理中心端 · 校园晴雨表** | **心理中心端 · 预警台账与干预登记** |
+| ![中心端校园晴雨表](docs/screenshots/center-board.png) | ![中心端预警台账](docs/screenshots/center-alerts.png) |
+
+> 截图为本地运行的演示数据（`AUTO_SEED=1` 灌入的脱敏示例样本），不含任何真实用户数据。
+
 ---
 
 ## ⚠️ 免责声明（请先读一遍）
