@@ -14,7 +14,7 @@ npm install          # 首次需要，better-sqlite3 会下载预编译二进制
 node server.js       # 访问 http://localhost:3000/ 与 http://localhost:3000/center
 ```
 
-**版本要求：Node 18 – 22（推荐 20 LTS）。** `better-sqlite3@11` 在 Node 23/24 下没有预编译二进制，`npm install` 会静默通过，但启动时抛 `ERR_DLOPEN_FAILED`。
+**版本要求：Node 18 – 22（推荐 20 LTS）。** `better-sqlite3@11` 的**早期版本**在 Node 23/24 下没有预编译二进制，`npm install` 会静默通过，但启动时抛 `ERR_DLOPEN_FAILED`；当前锁定的 `11.10.0` 已补上 Node 24 预编译（本项目在 Node 24 上实测可跑），但为稳妥仍建议按 20 LTS 走。
 
 Windows 用户也可以直接双击 `启动树洞信箱.bat`（会自动找 node、首次自动装依赖），中心端默认用演示口令登录：管理员 `admin2026`、咨询师 `counselor2026`。想换成自己的口令，直接改 bat 里 `ADMIN_PASS` / `COUNSELOR_PASS` 两行的值；命中弱口令自检会拒绝启动。
 
@@ -26,10 +26,11 @@ set COUNSELOR_PASS=<咨询师口令，见 README「本地演示口令」>
 node server.js
 ```
 
-模型 Key 不入库，复制模板再填：
+模型 Key 不入库，复制模板再填。**注意位置：`keys.json` 必须与 `keys.json.example` 同在 `树洞信箱Web版/` 下**，放到仓库根目录不会生效，表现为 AI 接口一直返回 503。
 
 ```bash
-cp 树洞信箱Web版/keys.json.example keys.json   # 未配置时 AI 接口返回 503，其余功能不受影响
+# 回到仓库根目录再执行（此时上一段已 cd 到 树洞信箱Web版/server）
+cp 树洞信箱Web版/keys.json.example 树洞信箱Web版/keys.json
 ```
 
 ## 二、改代码前要知道的四件事
@@ -52,7 +53,7 @@ node tests/prompt_scenarios.js
 # 2. 敏感项扫描，命中断言即阻断发布（退出码 1）
 python tools/scan_repo.py . --git-status
 
-# 3. 确认前端构建标识仍是占位串，没有被替换成真实时间戳
+# 3. 确认前端构建标识仍是占位串（别把手改出来的时间戳提交上去）
 grep -o "const BUILD_ID = '[^']*'" 树洞信箱Web版/树洞信箱_原型.html   # 应为 __BUILD_ID__
 ```
 

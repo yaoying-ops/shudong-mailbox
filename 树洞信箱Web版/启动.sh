@@ -5,11 +5,11 @@ set -e
 
 cd "$(dirname "$0")/server"
 
-echo "== 1/2 安装依赖（云端 Linux 会拉取 Linux 版 better-sqlite3）=="
+echo "== 1/2 安装依赖（首次会下载 better-sqlite3 的预编译二进制）=="
 npm install
 
 echo "== 2/2 启动服务，端口 3000 =="
 echo "学生端      http://localhost:3000/"
 echo "心理中心端  http://localhost:3000/center"
-echo "在 Cloud Studio 右侧「访问链接/端口」填 3000 即可对外访问。"
+echo "停止服务：关闭窗口，或按 Ctrl + C。"
 exec node server.js

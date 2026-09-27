@@ -1778,8 +1778,8 @@ function lockContact(){
 async function reportAssessment(payload){
   try{
     const body = Object.assign({ anonId:getAnonId(), date:localDateStr(new Date()) }, payload);
-    const r = await fetch(apiBase()+'api/assessment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    return !!r.ok;
+    const r = await sdPost('api/assessment', body);
+    return !!(r && r.ok);
   }catch(e){ return false; }
 }
 
@@ -1871,7 +1871,7 @@ function stopRecorder(){
 }
 async function startRecording(){
   const secure=window.isSecureContext||location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1";
-  if(!secure){ setVoiceStatus('手机/浏览器要求 HTTPS 才能用麦克风。请部署到 yaocoding.cn 等 HTTPS 环境后使用语音', 'err'); return; }
+  if(!secure){ setVoiceStatus('手机/浏览器要求 HTTPS 才能用麦克风。请通过 HTTPS 环境访问后使用语音', 'err'); return; }
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==="undefined"){
     setVoiceStatus('当前浏览器不支持录音，请用键盘输入（效果相同）', 'err'); return;
   }
@@ -2561,10 +2561,33 @@ function topicOfText(text){
   return null;
 }
 /* 后端接口基地址：本页既可跑在根路径（localhost:3000/），也可挂在子路径下
-   （https://yaocoding.cn/shudong/）。两种情况下都能拼出正确的接口地址。 */
+   （https://example.com/shudong/）。两种情况下都能拼出正确的接口地址。 */
 function apiBase(){
   const i = location.pathname.indexOf('/shudong');
   return i === -1 ? '/' : location.pathname.slice(0, i) + '/shudong/';
+}
+/* 匿名上报令牌：服务端每次现发一个一次性随机串，用来确认「请求来自本页面」。
+   令牌不含、也不关联任何身份，不写 localStorage、不落盘，只在本页内存里短暂存在。
+   取不到令牌时返回 null，由调用方按「本次未上报」处理，不静默丢数据。 */
+async function sdToken(){
+  try{
+    const r = await fetch(apiBase()+'api/token', {method:'GET', cache:'no-store'});
+    if(!r.ok) return null;
+    const d = await r.json();
+    return (d && d.token) ? d.token : null;
+  }catch(e){ return null; }
+}
+/* 带一次性令牌的 POST：拿不到令牌就不发请求（返回 null），避免白跑一趟 */
+async function sdPost(path, payload){
+  const t = await sdToken();
+  if(!t) return null;
+  try{
+    return await fetch(apiBase()+path, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-SD-Token':t},
+      body:JSON.stringify(payload)
+    });
+  }catch(e){ return null; }
 }
 /* 上报：只发「日期 + 情绪 + 话题」三元组，绝不发原文；失败不再静默，明确提示 */
 /* 上报一条心情到校园晴雨表（脱敏三元组，绝不发原文）。
@@ -2573,11 +2596,12 @@ function reportToCenter(mood, topic, silent){
   if(!mood) return;
   const note = $('cardReportNote');
   const payload = { anonId:getAnonId(), date:localDateStr(new Date()), mood, topic:topic||null };
-  fetch(apiBase()+'api/mood',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  sdPost('api/mood', payload)
     .then(r=>{
       if(silent) return;
-      if(r.ok){ toast('已匿名上报到校园晴雨表'); if(note) note.innerHTML='✓ 本次心情已匿名汇入校园晴雨表，帮心理中心了解整体趋势。'; }
-      else { if(note) note.innerHTML='⚠️ 后端未接收本次上报，心情仅留在本机。请确认服务已正常启动。'; toast('上报未成功，仅留本机'); }
+      if(r && r.ok){ toast('已匿名上报到校园晴雨表'); if(note) note.innerHTML='✓ 本次心情已匿名汇入校园晴雨表，帮心理中心了解整体趋势。'; }
+      else if(r){ if(note) note.innerHTML='⚠️ 后端未接收本次上报，心情仅留在本机。请确认服务已正常启动。'; toast('上报未成功，仅留本机'); }
+      else { if(note) note.innerHTML='⚠️ 未能完成本次上报（没领到上报凭证），心情仅留在本机。请稍后重试。'; toast('上报未成功，仅留本机'); }
     })
     .catch(()=>{ if(silent) return; if(note) note.innerHTML='⚠️ 未连接后端，本次心情仅留在本机，未上报校园晴雨表。请检查网络后重试。'; toast('未连接后端，仅留本机'); });
 }

@@ -1,7 +1,8 @@
 /* server.js — 树洞信箱后端聚合 + 中心管控服务
  * 同源托管：/  → 学生端原型页；/center → 心理中心看板
  * 接口：
- *   学生端：POST /api/mood（脱敏上报）  POST /api/chat（中心代理，持有 Key + 配额 + 轮转）
+ *   学生端：GET  /api/token（签发一次性匿名上报令牌，上报接口必须携带）
+ *           POST /api/mood（脱敏上报）  POST /api/chat（中心代理，持有 Key + 配额 + 轮转）
  *           POST /api/asr（中心代理语音识别，使用中心 qwen/glm Key）
  *           GET  /api/kb/resource（从中心知识库派生自助资源，公开）
  *   中心端：GET  /api/insight/aggregate（群体聚合 + 告警落库）  GET /api/ledger（逐条台账）
@@ -313,10 +314,72 @@ function clearSessionCookie(res) {
   res.setHeader('Set-Cookie', 'sd_sid=; HttpOnly; Path=/; Max-Age=0');
 }
 
+/* ============ ④ 学生端上报令牌（匿名，但请求可追溯到「来自我们的页面」） ============
+ * 上报接口必须向学生端开放（本项目不采集任何身份），所以无法用登录态保护；
+ * 但「谁都能直接 POST」会让中心端的预警台账失去可信度。
+ * 做法：服务端现发一个一次性、短期、不含任何身份的随机令牌，上报时经 X-SD-Token 携带，
+ *       用后即焚。令牌不关联学号 / 设备 / 会话，匿名性不受影响。
+ * 边界（别把它当身份认证）：能访问本服务的人都能自己领一个令牌。
+ *       它挡的是「随手写个脚本批量刷」，把伪造成本从一条 curl 抬到「要实现领取 + 节流」；
+ *       真正的来源鉴别仍要靠网关层身份认证或校园内网限制。
+ * 令牌与领取记录都只存内存，进程重启即清空。 */
+const SD_TOKEN_TTL = 10 * 60 * 1000;        // 单个令牌有效期：10 分钟
+const SD_TOKEN_MAX = 5000;                  // 内存中未使用令牌的上限
+/* 领令牌的限流：默认每个来源 60 个/分钟，可用环境变量 SD_TOKEN_ISSUE_MAX 调整。
+ * ⚠️ 校园网常是大 NAT：多个学生会共用同一个出口 IP，若网关没有透传真实客户端 IP
+ * （X-Forwarded-For），所有学生会共用一个配额——按学校规模适当调大这个值。 */
+const SD_TOKEN_ISSUE_MAX = parseInt(process.env.SD_TOKEN_ISSUE_MAX || '60', 10) || 60;
+const SD_TOKEN_ISSUE_WINDOW = 60 * 1000;    // 领令牌的限流窗口：60 秒
+const sdTokens = new Map();                 // token → 过期时间戳
+const sdTokenIssue = new Map();             // 来源标识 → { count, windowStart }
+
+function clientIp(req) {
+  // 经 HTTP 网关时取 X-Forwarded-For 的第一段；直连时回落 socket 地址
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length) return xff.split(',')[0].trim();
+  return (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+function pruneSdTokens(now) {
+  for (const [t, exp] of sdTokens) if (exp < now) sdTokens.delete(t);
+  for (const [ip, rec] of sdTokenIssue) if (now - rec.windowStart >= SD_TOKEN_ISSUE_WINDOW) sdTokenIssue.delete(ip);
+}
+function issueSdToken(req) {
+  const now = Date.now();
+  const ip = clientIp(req);
+  const rec = sdTokenIssue.get(ip);
+  if (!rec || now - rec.windowStart >= SD_TOKEN_ISSUE_WINDOW) sdTokenIssue.set(ip, { count: 1, windowStart: now });
+  else if (rec.count >= SD_TOKEN_ISSUE_MAX) return null;
+  else rec.count++;
+  // 两张表都可能被大量来源撑大，按需清理，避免无上限增长
+  if (sdTokens.size >= SD_TOKEN_MAX || sdTokenIssue.size > 10000) pruneSdTokens(now);
+  const token = crypto.randomBytes(24).toString('hex');
+  sdTokens.set(token, now + SD_TOKEN_TTL);
+  return token;
+}
+/* 发放令牌：公开（学生端页面要能领到），靠上面的领取频率兜住滥领 */
+app.get('/api/token', (req, res) => {
+  const token = issueSdToken(req);
+  if (!token) return res.status(429).json({ error: 'too many token requests, slow down' });
+  res.set('Cache-Control', 'no-store');
+  res.json({ token, ttlMs: SD_TOKEN_TTL });
+});
+/* 上报接口的门卫：令牌必须存在、未过期、且未被用过（一次性） */
+function requireStudentToken(req, res, next) {
+  const t = (req.get('x-sd-token') || (req.body && req.body.sdToken) || '').toString();
+  if (!t) return res.status(403).json({ error: 'missing token', hint: '先 GET /api/token 领取一次性令牌再上报' });
+  const exp = sdTokens.get(t);
+  if (!exp || exp < Date.now()) {
+    sdTokens.delete(t);
+    return res.status(403).json({ error: 'invalid or expired token' });
+  }
+  sdTokens.delete(t);   // 一次性：用后即焚，重放无效
+  next();
+}
+
 /* ============ 接口 ============ */
 
 /* —— 学生端：脱敏上报（只收 date + mood + topic + anonId，绝不收原文） —— */
-app.post('/api/mood', (req, res) => {
+app.post('/api/mood', requireStudentToken, (req, res) => {
   const { anonId, date, mood, topic } = req.body || {};
   if (!mood) return res.status(400).json({ error: 'mood required' });
   try {
@@ -333,7 +396,7 @@ app.post('/api/mood', (req, res) => {
  * 上报时机由学生主导：前端只在学生勾选同意并提交留联后才会调用本接口（可携带 contact/contactMode）。
  * 服务端按 §4.3 触发规则：level∈{Moderate,Severe} 或 q9Flag=1 → 落「量表预警」，联系方式直接挂到预警上。 */
 const ASSESS_LEVELS = ['Normal', 'Mild', 'Moderate', 'Severe'];
-app.post('/api/assessment', (req, res) => {
+app.post('/api/assessment', requireStudentToken, (req, res) => {
   const b = req.body || {};
   const anonId = (b.anonId || '').toString().slice(0, 64);
   const date = /^\d{4}-\d{2}-\d{2}$/.test(b.date) ? b.date : dateCN();
@@ -367,7 +430,7 @@ app.post('/api/assessment', (req, res) => {
 
 /* 学生高危自测后补充留联：把联系方式挂到该匿名标识最新的量表预警上（仅高危可见，普通自测台账不展示）。
    留联为可选 + 显式同意，低风险全程零采集；此处只写已存在的高危预警，不新建预警。 */
-app.post('/api/assessment/contact', (req, res) => {
+app.post('/api/assessment/contact', requireStudentToken, (req, res) => {
   const b = req.body || {};
   const anonId = (b.anonId || '').toString().slice(0, 64);
   const contact = (b.contact || '').toString().slice(0, 64).trim();
@@ -401,15 +464,10 @@ app.post('/api/chat', async (req, res) => {
     return res.status(429).json({ error: 'daily quota exceeded', used, quota: LLM_QUOTA_PER_DAY });
   }
 
-  // 先按 Key 的 provider 选定真实调用的模型与端点，保证「Key 与模型同源」
-  const picked = pickKey(wantProvider);
-  if (!picked) {
-    return res.status(503).json({ error: 'center has no available key for ' + wantProvider });
-  }
-  const cfg = MODELS[picked.provider] || MODELS.deepseek;
-
+  /* 「Key、端点、模型」三者必须同源：端点与模型都跟着**这一次实际选中的那把 Key**走。
+   * 曾把 cfg 放在循环外算一次，结果重试轮转到别家 Key 时仍沿用上一把 Key 的端点——
+   * 等于把 A 家的 Key 发给 B 家（既是凭据外泄，也必然 401）。故 cfg 在循环内现取。 */
   const proxyBody = {
-    model: cfg.model,
     messages: Array.isArray(body.messages) ? body.messages : [],
     stream: !!body.stream,
     temperature: body.temperature,
@@ -418,14 +476,17 @@ app.post('/api/chat', async (req, res) => {
 
   const attempts = Math.max(1, KEYS.length);
   let lastErr = null;
+  let tried = 0;
   for (let a = 0; a < attempts; a++) {
     const k = pickKey(wantProvider) || pickKey(wantProvider === 'deepseek' ? 'qwen' : 'deepseek');
     if (!k) break;
+    tried++;
+    const cfg = MODELS[k.provider] || MODELS.deepseek;
     try {
       const upstream = await fetch(cfg.base, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + k.key },
-        body: JSON.stringify(proxyBody)
+        body: JSON.stringify({ ...proxyBody, model: cfg.model })
       });
       // Key 失效 / 限流 → 标记该 key 失效，换下一个重试
       if (upstream.status === 401 || upstream.status === 429) {
@@ -464,6 +525,8 @@ app.post('/api/chat', async (req, res) => {
       continue;
     }
   }
+  // 一把 Key 都没轮到（全被标记失效）→ 503；轮到过但全都失败 → 502
+  if (!tried) return res.status(503).json({ error: 'center has no available key for ' + wantProvider });
   return res.status(502).json({ error: 'all LLM keys failed', detail: String(lastErr || 'unknown') });
 });
 
