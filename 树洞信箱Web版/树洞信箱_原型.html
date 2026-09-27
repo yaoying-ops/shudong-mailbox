@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>树洞信箱 · 多 Agent 原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{
+    /* 中性层：暖米白画布 + 暖白卡面 + 燕麦色框架（统一暖色相，避免冷暖打架），正文用暖墨黑 */
+    --bg:oklch(.952 .007 88);
+    --surface:oklch(.99 .004 90);
+    --surface-2:oklch(.94 .012 85);
+    --chrome:oklch(.975 .006 88);
+    --fg:oklch(.27 .012 60);
+    /* 说明文字承载量大，压到 .53 让对比度从 4.74:1 提到 5.16:1（AA 线是 4.5） */
+    --muted:oklch(.53 .018 70);
+    --border:oklch(.90 .012 85);
+    --border-strong:oklch(.83 .02 82);
+    /* 品牌层：柔雾绿（治愈草木主色，与雾绿白画布同为低饱和冷调），只出现在可交互处 */
+    --accent:oklch(.55 .05 152);
+    --accent-hover:oklch(.47 .05 152);
+    --accent-soft:oklch(.90 .026 152);
+    --accent-ink:oklch(.40 .045 152);
+    --accent-line:oklch(.75 .030 152);
+    --accent-fg:#fff;
+    /* 语义层：陶土 / 燕麦黄 / 灰玫瑰（都压到莫兰迪的灰度） */
+    --warn:oklch(.58 .075 55);
+    --warn-soft:oklch(.95 .022 62);
+    --warn-line:oklch(.84 .045 58);
+    --note:oklch(.60 .055 82);
+    --note-soft:oklch(.95 .025 88);
+    --danger:oklch(.55 .07 18);
+    --danger-soft:oklch(.95 .02 20);
+    --danger-line:oklch(.85 .04 22);
+    /* 情绪数据色：莫兰迪化的 8 色，只用于色卡 / 环形图 / 走势线 */
+    --mood-hope:oklch(.72 .055 112);
+    --mood-warm:oklch(.70 .055 62);
+    --mood-calm:oklch(.67 .042 232);
+    --mood-tired:oklch(.68 .035 86);
+    --mood-anxious:oklch(.60 .07 46);
+    --mood-low:oklch(.60 .045 300);
+    --mood-breakdown:oklch(.55 .06 26);
+    --mood-numb:oklch(.58 .035 330);
+    --radius:18px;
+    /* 效果层：遮罩与浮层底色，也从 token 走，避免以后再出现散落的写死颜色 */
+    --scrim:oklch(.30 .012 70 / .5);
+    --toast-bg:oklch(.28 .012 70);
+    /* 立体感：接触影 + 中层影 + 大范围柔影，再用 1px 内高光做"纸的厚度"（暖调阴影） */
+    --shadow:0 1px 2px rgba(74,64,52,.07),0 8px 18px rgba(74,64,52,.07),0 20px 44px rgba(74,64,52,.06);
+    --shadow-card:var(--shadow),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(74,64,52,.03);
+    --shadow-soft:0 1px 2px rgba(74,64,52,.06),0 6px 14px rgba(74,64,52,.06);
+    /* 中文统一思源宋体（Source Han Serif）；Google Fonts 的 Noto Serif SC 与它是同一套字形，
+       本地装了思源宋体就优先用本地，没装就回落到同字形的网络字体。 */
+    --font-display:"Source Han Serif SC","Source Han Serif CN","思源宋体","Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    --font-body:"Source Han Serif SC","Source Han Serif CN","思源宋体","Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    --fs-body:17px; --fs-p:16px; --fs-sm:15px; --fs-cap:14px; --fs-h1:22px; --fs-h2:19px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html{-webkit-text-size-adjust:100%;}
+  body{height:100vh;height:100dvh;overflow:hidden;background:var(--bg);color:var(--fg);
+    font-family:var(--font-body);font-size:var(--fs-body);line-height:1.75;
+    display:flex;flex-direction:column;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.4;letter-spacing:0;}
+  b,strong{font-weight:600;}
+  /* 思源宋体在小字号下加一点字距，笔画不挤（中文正文仍为 0） */
+  .muted,.hint,.badge,.agent-tag,.voice-status,.legend,.cal-cell,.topbar .sub,.side-foot p,.sheet label,.ac-role{
+    letter-spacing:.01em;}
+  /* 图标容器：既装 emoji（聊天流的表达性图标），也装 sprite 线性图标。
+     stroke-width 写在容器上是给子 svg 继承用的——.active 里加粗靠的就是这条继承链。 */
+  .ic{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.15em;height:1.15em;line-height:1;
+    stroke-width:1.8;}
+  /* sprite 线性图标：笔画走 currentColor，颜色和粗细都跟随外层，不再各自写死 */
+  .ic svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+  /* 键盘焦点：所有可交互元素都有清晰焦点环 */
+  button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;}
+  .sprite{position:absolute;width:0;height:0;overflow:hidden;}
+
+  /* ---------- 外壳：手机单列 / 桌面左栏 + 主区 ---------- */
+  .app{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;}
+  .main{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;min-width:0;}
+  .sidebar{display:none;}
+
+  /* ---------- 手机端：顶栏 + 标签栏 ---------- */
+  .topbar{flex:0 0 auto;display:flex;align-items:center;gap:11px;background:var(--chrome);
+    border-bottom:1px solid var(--border);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;}
+  .logo{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--accent);
+    color:var(--accent-fg);display:flex;align-items:center;justify-content:center;}
+  .logo .ic{width:21px;height:21px;font-size:21px;}
+  .topbar h1{font-size:var(--fs-h1);font-weight:600;}
+  .topbar .sub{font-size:var(--fs-cap);color:var(--muted);line-height:1.5;margin-top:1px;}
+  .topbar>div{min-width:0;}
+  .topbar .spacer{flex:1;}
+  .topbar-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  /* 校园晴雨表连接状态：收成标题标签旁的一个小圆点（悬停有说明），不再单独占一行 */
+  .conn{width:7px;height:7px;border-radius:50%;background:var(--border-strong);flex:0 0 auto;display:inline-block;margin-left:2px;}
+  .conn.on{background:var(--accent);}
+  .conn.off{background:var(--warn);}
+  .card-note{margin-top:12px;font-size:var(--fs-cap);line-height:1.6;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;}
+  .tool-btn{width:44px;height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    border:1px solid var(--border-strong);border-radius:12px;background:var(--surface);color:var(--fg);
+    transition:background .15s,border-color .15s;}
+  .tool-btn:hover{background:var(--surface-2);border-color:var(--fg);}
+  .tool-btn .ic{width:20px;height:20px;font-size:20px;}
+
+  .tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+    background:var(--chrome);border-bottom:1px solid var(--border);padding:6px;}
+  .tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:52px;padding:8px 4px;border:1px solid transparent;border-radius:12px;background:transparent;
+    color:var(--muted);cursor:pointer;font-family:inherit;font-size:var(--fs-cap);font-weight:500;
+    transition:background .15s,color .15s,border-color .15s;}
+  .tab .ic{width:19px;height:19px;font-size:19px;}
+  .tab:hover{background:var(--surface-2);color:var(--fg);border-color:var(--border);}
+  .tab.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-line);font-weight:600;
+    box-shadow:0 1px 2px rgba(74,64,52,.06),inset 0 1px 0 rgba(255,255,255,.6);}
+  .tab.active .ic{stroke-width:2.1;}
+
+  /* ---------- 视图容器 ---------- */
+  .view{flex:1 1 auto;display:none;flex-direction:column;min-height:0;min-width:0;}
+  .view.active{display:flex;}
+  .view.scroll{overflow-y:auto;overscroll-behavior:contain;
+    padding:16px 16px calc(24px + env(safe-area-inset-bottom));}
+
+  #view-chat{background:var(--bg);}
+  .chat{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:18px 16px 8px;}
+  .msg{display:flex;gap:9px;align-items:flex-start;margin-bottom:16px;}
+  .msg.user{flex-direction:row-reverse;}
+  .msg-body{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;max-width:min(84%,640px);}
+  .msg.user .msg-body{align-items:flex-end;}
+  .ava{width:32px;height:32px;flex:0 0 32px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface);border:1px solid var(--border);color:var(--accent-ink);}
+  .ava .ic{width:18px;height:18px;font-size:18px;}
+  .msg.user .ava{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);}
+  .agent-tag{font-size:var(--fs-cap);font-weight:500;color:var(--muted);}
+  .bubble{padding:12px 16px;border-radius:16px;white-space:pre-wrap;word-break:break-word;
+    font-size:var(--fs-body);line-height:1.8;}
+  .msg.user .bubble{background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:6px;}
+  .msg.bot .bubble{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:6px;
+    box-shadow:var(--shadow-soft);}
+  .msg .bubble b{font-weight:600;}
+  .sys{max-width:640px;margin:14px auto;text-align:center;font-size:var(--fs-cap);line-height:1.7;color:var(--muted);}
+  .sys.care{display:flex;gap:10px;align-items:flex-start;text-align:left;color:var(--fg);
+    background:var(--surface);border:1px solid var(--accent-line);border-radius:14px;
+    padding:14px 16px;font-size:var(--fs-p);line-height:1.75;box-shadow:var(--shadow-soft);}
+  .sys.care .ic{width:20px;height:20px;font-size:20px;color:var(--accent-ink);margin-top:3px;}
+  .sys-label{display:block;font-family:var(--font-display);font-weight:600;margin-bottom:3px;}
+  .handoff{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;
+    max-width:640px;margin:16px auto;padding:10px 14px;background:var(--surface);
+    border:1px dashed var(--border-strong);border-radius:14px;font-size:var(--fs-cap);color:var(--muted);
+    box-shadow:var(--shadow-soft);}
+  .handoff .ic{width:17px;height:17px;font-size:17px;}
+  .handoff .ho-ic{display:flex;color:var(--accent-ink);}
+  .handoff .ho-src{color:var(--fg);font-weight:500;}
+  .handoff .ho-dst{display:inline-flex;align-items:center;gap:5px;font-weight:500;color:var(--accent-ink);}
+  .handoff .ho-dst b{color:var(--accent-ink);font-weight:600;}
+  .handoff .ho-dst i{font-style:normal;font-weight:400;color:var(--muted);}
+  .moodbar{display:flex;align-items:center;gap:7px;justify-content:flex-end;margin:-8px 2px 16px 0;
+    font-size:var(--fs-cap);color:var(--muted);}
+  .moodbar b{color:var(--fg);font-weight:600;}
+  .mood-dot{width:14px;height:14px;border-radius:50%;flex:0 0 14px;}
+  .typing{font-size:var(--fs-cap);color:var(--muted);padding:0 4px 12px 41px;}
+
+  /* ---------- 输入区 ---------- */
+  .composer{flex:0 0 auto;background:var(--chrome);border-top:1px solid var(--border);
+    padding:10px 16px calc(26px + env(safe-area-inset-bottom));}
+  .composer-inner{display:flex;flex-direction:column;gap:10px;width:100%;max-width:820px;margin:0 auto;}
+  /* 四位伙伴：圆角矩形卡片，一行四张、等高对齐 */
+  .agent-bar{display:flex;flex-wrap:wrap;gap:8px;}
+  .agent-chip{display:flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap;
+    min-height:48px;padding:10px 14px;cursor:pointer;
+    border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--fg);
+    font-family:inherit;font-size:var(--fs-sm);font-weight:500;
+    box-shadow:0 1px 2px rgba(74,64,52,.07),inset 0 1px 0 rgba(255,255,255,.9);
+    transition:background .15s,border-color .15s,box-shadow .15s;}
+  .ac-top{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+  .agent-chip .ic{width:16px;height:16px;font-size:16px;color:var(--muted);}
+  .ac-role{font-size:12.5px;font-weight:400;line-height:1.3;color:var(--muted);white-space:nowrap;}
+  .agent-chip:hover{background:var(--surface-2);border-color:var(--border-strong);}
+  .agent-chip.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-ink);font-weight:600;
+    box-shadow:0 2px 6px rgba(74,64,52,.10),inset 0 1px 0 rgba(255,255,255,.6);}
+  .agent-chip.active .ic{color:var(--accent-ink);}
+  .agent-chip.active .ac-role{color:var(--accent-ink);opacity:.82;}
+  .composer .row{display:flex;gap:9px;align-items:flex-end;}
+  /* 输入框把话筒「含」在内部：外层相对定位，话筒绝对定位落到框内右侧 */
+  .input-wrap{position:relative;flex:1 1 auto;min-width:0;display:flex;}
+  .composer textarea{flex:1;resize:none;min-height:52px;max-height:180px;padding:13px 56px 13px 15px;line-height:1.6;
+    border:1px solid var(--border-strong);border-radius:16px;background:var(--surface-2);color:var(--fg);
+    font-family:inherit;font-size:var(--fs-body);}
+  .composer textarea::placeholder{color:var(--muted);}
+  .composer textarea:focus:not(:focus-visible){outline:none;border-color:var(--accent);background:var(--surface);}
+  .composer textarea:focus{border-color:var(--accent);background:var(--surface);}
+  /* 发送：深色圆形图标按钮（实心上箭头），只有图标没有文字 */
+  .send{flex:0 0 auto;width:52px;height:52px;padding:0;border:0;border-radius:50%;background:var(--fg);color:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .15s,box-shadow .15s,background .15s,opacity .15s;}
+  .send .ic{width:22px;height:22px;font-size:22px;}
+  .send .ic svg{fill:currentColor;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round;}
+  .send:hover:not(:disabled){background:oklch(.2 .012 60);transform:translateY(-1px);box-shadow:var(--shadow);}
+  .send:active:not(:disabled){transform:translateY(1px);box-shadow:none;}
+  /* 禁用态（AI 回复中）：浅底 + 灰箭头，看得出是"不可点"而不是"图标没加载出来" */
+  .send:disabled{background:var(--border-strong);color:var(--muted);opacity:.75;cursor:not-allowed;}
+  /* 话筒：贴在输入框内右下角，无边框无底色，只留一条线性话筒 */
+  .mic{position:absolute;right:10px;bottom:7px;width:40px;height:40px;padding:0;border:0;border-radius:13px;
+    background:transparent;color:var(--muted);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+  .mic .ic{width:20px;height:20px;font-size:20px;}
+  .mic:hover{color:var(--fg);background:color-mix(in oklab,var(--fg) 9%,transparent);}
+  .mic.listening{background:var(--accent);color:var(--accent-fg);animation:micPulse 1.4s infinite;}
+  .mic:disabled{opacity:.45;cursor:not-allowed;}
+  /* 输入框滚动条收细：默认滚动条宽约 15px，整条竖在右缘，正好压在右下角话筒上。
+     收成 6px 细条后滚动条占右缘 0-6px、话筒从 10px 起，正好错开不重叠。 */
+  .composer textarea::-webkit-scrollbar{width:6px;}
+  .composer textarea::-webkit-scrollbar-thumb{background:color-mix(in oklab,var(--fg) 16%,transparent);border-radius:999px;}
+  .composer textarea::-webkit-scrollbar-track{background:transparent;}
+  .composer textarea{scrollbar-width:thin;scrollbar-color:color-mix(in oklab,var(--fg) 16%,transparent) transparent;}
+  .voice-status{font-size:var(--fs-cap);line-height:1.55;color:var(--muted);}
+  .voice-status.err{color:var(--danger);}
+  .voice-status.ok{color:var(--accent-ink);}
+  @keyframes micPulse{0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 50%,transparent);}
+    70%{box-shadow:0 0 0 12px color-mix(in oklab,var(--accent) 0%,transparent);}
+    100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 0%,transparent);}}
+  .ghost{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;cursor:pointer;
+    border:1px solid var(--border-strong);border-radius:14px;background:var(--surface);color:var(--fg);
+    font-family:inherit;font-size:var(--fs-sm);transition:.15s;}
+  .ghost .ic{width:17px;height:17px;font-size:17px;}
+  .ghost:hover{background:var(--surface-2);border-color:var(--fg);}
+  .ghost:disabled{opacity:.55;cursor:not-allowed;}
+  .breath-cta{border-color:var(--accent);color:var(--accent-ink);}
+  .breath-cta:hover{background:var(--accent-soft);border-color:var(--accent);}
+  .topic-chip{display:inline-block;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:14px;padding:5px 12px;margin:4px 8px 4px 0;font-size:var(--fs-sm);
+    color:var(--accent-ink);box-shadow:inset 0 1px 2px rgba(74,64,52,.05);}
+
+  /* ---------- 通用卡片 ---------- */
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;margin-bottom:16px;box-shadow:var(--shadow-card);min-width:0;}
+  .panel h3{font-size:var(--fs-h2);font-weight:600;margin-bottom:10px;color:var(--accent-ink);}
+  .panel p{font-size:var(--fs-p);line-height:1.8;}
+  .panel .muted,.muted{font-size:var(--fs-cap);line-height:1.7;color:var(--muted);}
+
+  /* ---------- 心声日历 ---------- */
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:14px;}
+  .cal-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    min-height:58px;padding:8px 2px;
+    border:1px solid var(--border);border-radius:12px;background:var(--surface-2);
+    font-size:var(--fs-cap);color:var(--fg);
+    box-shadow:inset 0 1px 3px rgba(74,64,52,.07);}
+  /* 当天倾诉次数角标（>1 次才出现）：加一层浅底药丸，压在深色格子上也看得清 */
+  .cal-cell .cal-n{position:absolute;top:3px;right:4px;font-size:11px;line-height:15px;font-weight:600;
+    padding:0 4px;border-radius:8px;color:var(--fg);
+    background:color-mix(in oklab, var(--surface) 72%, transparent);
+    font-variant-numeric:tabular-nums;}
+  .cal-cell .dot{width:16px;height:16px;border-radius:50%;flex:0 0 16px;
+    box-shadow:0 0 0 2px var(--surface),0 1px 2px rgba(74,64,52,.16);}
+
+  /* 日历页版式：顶部日历整宽 → 下方「在意的事 / 数据与隐私」两列齐平 */
+  .panel-fill{display:flex;flex-direction:column;}
+  .privacy-acts{display:grid;gap:10px;margin-top:14px;}
+  .privacy-acts .ghost{width:100%;min-height:48px;justify-content:center;border-radius:16px;}
+  .privacy-note{margin-top:14px;}
+  /* 左列空态：不再是一句话，而是一排灰化占位条（骨架） */
+  #topicBars{display:flex;flex-direction:column;gap:0;flex:1 1 auto;}
+  #topicBars.is-empty{justify-content:center;gap:16px;}
+  .topic-skel{height:14px;border-radius:8px;border:1px dashed var(--border-strong);
+    background:var(--surface-2);opacity:.7;}
+
+  /* ---------- 话题条 ---------- */
+  .topic-row{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:var(--fs-p);}
+  .topic-name{width:76px;flex:0 0 76px;font-weight:500;}
+  .topic-bar{flex:1;height:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .topic-fill{height:100%;background:var(--accent);border-radius:7px;}
+  .topic-num{width:34px;flex:0 0 34px;text-align:right;color:var(--muted);font-size:var(--fs-cap);font-variant-numeric:tabular-nums;}
+
+  /* ---------- 洞察环形图 ---------- */
+  .donut-row{display:flex;flex-direction:column;align-items:center;gap:18px;}
+  /* 环形图：保留一点立体感（环面高光 + 凹陷圆心），但把投影和高光都收住——
+     原来的厚度接近实物陶瓷环，跟页面其余部分的扁平纸感不是一套语言。 */
+  .donut{--dh:36px;--dhr:59px;width:190px;height:190px;border-radius:50%;position:relative;flex:0 0 auto;
+    box-shadow:0 9px 22px rgba(74,64,52,.13),0 2px 6px rgba(74,64,52,.08),0 0 0 1px rgba(74,64,52,.05);}
+  .donut::before{content:'';position:absolute;inset:0;border-radius:50%;z-index:1;pointer-events:none;
+    background:linear-gradient(150deg,rgba(255,255,255,.30),rgba(255,255,255,.04) 42%,rgba(74,64,52,.10));
+    -webkit-mask:radial-gradient(circle at 50% 50%,transparent 0 var(--dhr),#000 var(--dhr) 100%);
+            mask:radial-gradient(circle at 50% 50%,transparent 0 var(--dhr),#000 var(--dhr) 100%);}
+  .donut::after{content:'';position:absolute;inset:var(--dh);border-radius:50%;background:var(--surface);
+    box-shadow:inset 0 3px 7px rgba(74,64,52,.13),inset 0 -2px 5px rgba(255,255,255,.9),0 1px 2px rgba(74,64,52,.05);}
+  .donut-center{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;}
+  .dc-num{font-family:var(--font-display);font-size:var(--fs-h2);font-weight:600;line-height:1.3;color:var(--accent-ink);}
+  .dc-lab{font-size:var(--fs-cap);color:var(--muted);}
+  .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;width:100%;font-size:var(--fs-cap);}
+  .legend .li{display:flex;align-items:center;gap:8px;min-width:0;}
+  .legend .sw{width:14px;height:14px;border-radius:4px;flex:0 0 14px;}
+  .badge{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-cap);font-weight:500;
+    background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-line);
+    border-radius:9px;padding:5px 11px;margin-bottom:12px;}
+
+  /* ---------- 弹层 ---------- */
+  .mask{position:fixed;inset:0;background:var(--scrim);display:none;align-items:center;justify-content:center;
+    padding:16px;z-index:50;}
+  .mask.show{display:flex;}
+  /* D 案：危机转介层永远置顶。所有 .mask 同为 z-index:50，靠 DOM 顺序决定谁盖谁，
+     crisisMask 排在最前（789 行），会被后面的小测/呼吸/纪念卡全部盖住。这里单独提级，
+     保证 12356 热线资源卡不被任何功能弹窗遮住（也覆盖量表 Q9 阳性复用它的场景）。 */
+  #crisisMask{z-index:90;}
+  .sheet{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:460px;width:100%;
+    padding:20px;box-shadow:0 24px 60px rgba(74,64,52,.24),0 8px 20px rgba(74,64,52,.12);max-height:100%;overflow-y:auto;}
+  .sheet h3{font-size:20px;margin-bottom:8px;}
+  .sheet label{display:block;font-size:var(--fs-cap);color:var(--muted);margin:10px 0 4px;}
+  .set-col>label:first-child{margin-top:0;}
+  .sheet select,.sheet input,.sheet textarea{width:100%;padding:10px 13px;border:1px solid var(--border-strong);
+    border-radius:12px;font-family:inherit;font-size:16px;background:var(--surface-2);color:var(--fg);}
+  .sheet select:focus,.sheet input:focus,.sheet textarea:focus{border-color:var(--accent);background:var(--surface);}
+  .sheet select:focus:not(:focus-visible),.sheet input:focus:not(:focus-visible),.sheet textarea:focus:not(:focus-visible){outline:none;}
+  .sheet .hint{font-size:var(--fs-cap);line-height:1.6;color:var(--muted);margin-top:4px;}
+  .sheet .kb-input{margin-top:5px;height:96px;resize:vertical;}
+  .sheet .btnrow{display:flex;gap:10px;margin-top:6px;}
+  .sheet .btnrow button{flex:1;min-height:44px;border-radius:14px;font-family:inherit;font-size:var(--fs-p);
+    font-weight:500;cursor:pointer;}
+  /* 设置面板：桌面双栏等高卡片，内容全部落在一屏内，不出现滚动条 */
+  .sheet-settings{max-width:720px;}
+  .set-grid{display:grid;gap:14px;}
+  .set-col{display:flex;flex-direction:column;min-width:0;
+    background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:14px 16px 16px;}
+  .set-col>label:first-child{margin-top:0;}
+  .set-col .btnrow{margin-top:auto;padding-top:12px;}
+  .set-col .kb-input{flex:1 1 auto;min-height:110px;}
+  .sheet .btnrow.set-footer{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+  @media (min-width:768px){
+    .set-grid{grid-template-columns:1fr 1fr;}
+    .sheet .btnrow.set-footer{justify-content:flex-end;}
+    .sheet .btnrow.set-footer button{flex:0 0 auto;min-width:120px;}
+  }
+  @media (max-width:767px){
+    .mask{padding:12px;}
+    .sheet{padding:16px;}
+    .sheet .kb-input{height:84px;}
+  }
+  .primary-btn{background:var(--accent);color:var(--accent-fg);border:1px solid var(--accent);}
+  .primary-btn:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+  .cancel-btn{background:var(--surface-2);border:1px solid var(--border-strong);color:var(--fg);}
+  .cancel-btn:hover{background:var(--surface);border-color:var(--fg);}
+  .crisis{background:var(--surface);border-color:var(--border);}
+  .crisis .c-title{font-family:var(--font-display);color:var(--warn);font-size:20px;font-weight:600;margin-bottom:10px;}
+  .crisis ul{margin:10px 0 6px;padding-left:22px;font-size:var(--fs-p);line-height:1.8;}
+  /* 标准化小测弹层（PHQ-9 + GAD-7） */
+  .quiz-sheet{max-width:480px;}
+  .quiz-head{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--fg);margin-bottom:4px;}
+  .quiz-sub{font-size:var(--fs-cap);color:var(--muted);margin-bottom:12px;}
+  .quiz-desc{font-size:var(--fs-p);line-height:1.85;color:var(--fg);margin:8px 0;}
+  .quiz-disc{font-size:var(--fs-cap);line-height:1.7;color:var(--muted);margin:10px 0;background:var(--surface-2);border-radius:12px;padding:10px 12px;}
+  .quiz-last{font-size:var(--fs-cap);line-height:1.6;color:var(--accent-ink,var(--fg));margin:4px 0 10px;background:var(--accent-soft,var(--surface-2));border:1px solid var(--accent-line,var(--border));border-radius:12px;padding:9px 12px;}
+  .quiz-disc b{color:var(--accent);}
+  .quiz-prog{font-size:var(--fs-cap);color:var(--accent);font-weight:600;margin-bottom:8px;}
+  .quiz-q{font-size:18px;line-height:1.7;color:var(--fg);margin:4px 0 16px;font-weight:500;}
+  .quiz-opts{display:flex;flex-direction:column;gap:10px;}
+  .quiz-opt{width:100%;text-align:left;padding:13px 16px;border:1px solid var(--border-strong);border-radius:14px;background:var(--surface-2);color:var(--fg);font-size:16px;font-family:inherit;cursor:pointer;transition:.15s;}
+  .quiz-opt:hover{border-color:var(--accent);background:var(--surface);}
+  .quiz-scores{display:flex;gap:12px;margin:6px 0 4px;}
+  .quiz-scores .qs{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow-card);}
+  .quiz-scores .qs span{font-size:var(--fs-cap);color:var(--muted);}
+  .quiz-scores .qs b{font-size:20px;color:var(--fg);}
+  .quiz-scores .qs i{font-style:normal;font-size:var(--fs-cap);color:var(--accent);}
+  .quiz-scores .qs i.sev{color:#b3322c;font-weight:600;}   /* 明显困扰：红色警示 */
+  .quiz-guid{font-size:var(--fs-p);line-height:1.9;color:var(--fg);margin:8px 0;}
+  .quiz-guid b{color:var(--warn);}
+  .quiz-back{margin-top:14px;text-align:right;}
+  .quiz-exit{background:transparent;border:none;color:var(--muted);font-family:inherit;
+    font-size:var(--fs-cap);font-weight:500;padding:10px 14px;min-height:36px;border-radius:10px;
+    cursor:pointer;transition:.15s;letter-spacing:.05em;}
+  .quiz-exit:hover{background:var(--surface-2);color:var(--fg);}
+  /* 高危自测留联卡片（可选 + 显式同意，仅高风险出现） */
+  .quiz-contact{margin:14px 0 4px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-card);}
+  .qc-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--fg);margin-bottom:6px;}
+  .qc-desc{font-size:var(--fs-cap);line-height:1.7;color:var(--muted);margin:0 0 10px;}
+  .qc-mode{display:flex;gap:22px;margin-bottom:10px;}
+  .quiz-contact .qc-mode label{font-size:var(--fs-p);color:var(--fg);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;flex:0 0 auto;margin:0;}
+  .qc-input{width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--border-strong);border-radius:12px;background:var(--surface);color:var(--fg);font-family:inherit;font-size:16px;margin-bottom:10px;}
+  .qc-input:focus{outline:none;border-color:var(--accent);}
+  .quiz-contact .qc-consent{display:flex;align-items:flex-start;gap:8px;font-size:var(--fs-cap);line-height:1.6;color:var(--fg);margin:0 0 10px;cursor:pointer;}
+  .qc-consent input{margin-top:3px;flex:0 0 auto;width:auto;}
+  .qc-mode input{width:auto;flex:0 0 auto;}
+  .qc-msg{font-size:var(--fs-cap);line-height:1.6;margin-top:8px;}
+  .qc-msg.ok{color:var(--accent);}
+  .qc-msg.warn{color:var(--warn);}
+  .crisis li{margin:6px 0;}
+  .crisis a{color:var(--warn);}
+  .hot{font-weight:600;color:var(--warn);}
+  #cardCanvas{width:100%;border-radius:14px;display:none;margin-top:12px;background:var(--surface-2);}
+
+  /* ---------- 数据图形 ---------- */
+  .spark{width:100%;height:72px;margin:8px 0 2px;display:block;}
+  .spark-area{fill:color-mix(in oklab,var(--accent) 16%,transparent);}
+  .cloud{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:center;padding:14px 4px;}
+  .cloud span{line-height:1.25;font-weight:500;}
+  .gauge{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:8px 0 4px;}
+  .gauge .num{font-family:var(--font-display);font-size:40px;line-height:1.2;font-weight:600;color:var(--accent-ink);}
+  .gauge .lab{font-size:var(--fs-cap);color:var(--muted);}
+  .risk{display:inline-block;font-size:var(--fs-cap);font-weight:500;border-radius:9px;padding:4px 11px;
+    margin:4px 0 2px;border:1px solid transparent;}
+  .risk.green{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-line);}
+  .risk.yellow{background:var(--note-soft);color:var(--note);}
+  .risk.orange{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line);}
+  .risk.red{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-line);}
+  .insight-sum{font-size:var(--fs-p);line-height:1.8;white-space:pre-wrap;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:10px;
+    box-shadow:inset 0 1px 3px rgba(74,64,52,.06);}
+  .toast{position:fixed;top:calc(124px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);max-width:calc(100vw - 40px);
+    background:var(--toast-bg);color:#fff;padding:11px 20px;border-radius:22px;font-size:var(--fs-sm);
+    opacity:0;transition:opacity .3s;z-index:60;pointer-events:none;}
+  .toast.show{opacity:1;}
+
+  /* ---------- 预警卡片：数据 → 心理中心行动 ---------- */
+  .alert-card{margin-top:12px;padding:15px 17px;border:1px solid var(--border);border-radius:14px;
+    background:var(--surface-2);font-size:var(--fs-p);line-height:1.8;box-shadow:inset 0 1px 3px rgba(74,64,52,.06);}
+  .alert-card .at{display:flex;align-items:center;gap:8px;font-family:var(--font-display);
+    font-weight:600;font-size:var(--fs-p);margin-bottom:6px;}
+  .alert-card .dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px;background:var(--muted);}
+  .alert-card .adv{color:var(--fg);}
+  .alert-green{background:var(--accent-soft);border-color:var(--accent-line);}
+  .alert-green .dot{background:var(--accent);}
+  .alert-orange{background:var(--warn-soft);border-color:var(--warn-line);}
+  .alert-orange .dot{background:var(--warn);}
+  .alert-red{background:var(--danger-soft);border-color:var(--danger-line);}
+  .alert-red .dot{background:var(--danger);}
+
+  /* ---------- 呼吸练习浮层 ---------- */
+  .breath-mask{background:var(--scrim);}
+  .breath-sheet{background:var(--surface);border:1px solid var(--border);border-radius:22px;max-width:400px;
+    width:100%;padding:28px 24px;text-align:center;box-shadow:0 24px 60px rgba(74,64,52,.24),0 8px 20px rgba(74,64,52,.12);}
+  .breath-sheet h3{font-size:21px;margin-bottom:6px;}
+  .breath-sheet .sub{font-size:var(--fs-cap);line-height:1.7;color:var(--muted);margin-bottom:20px;}
+  .breath-circle{width:180px;height:180px;border-radius:50%;margin:10px auto 18px;
+    background:radial-gradient(circle at 50% 34%,var(--surface),var(--accent-soft));
+    border:1px solid var(--accent-line);
+    display:flex;align-items:center;justify-content:center;color:var(--accent-ink);font-size:19px;
+    transition:transform 4s ease-in-out;box-shadow:0 12px 30px color-mix(in oklab,var(--accent) 22%,transparent);}
+  .breath-circle.in{transform:scale(1);}
+  .breath-circle.out{transform:scale(.55);}
+  .breath-count{font-size:var(--fs-cap);color:var(--muted);min-height:20px;}
+  .breath-btnrow{margin-top:20px;display:flex;gap:10px;justify-content:center;}
+  .breath-tip{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:12px 16px;color:var(--fg);font-size:var(--fs-sm);line-height:1.7;box-shadow:var(--shadow-soft);}
+
+  /* ---------- 桌面端：左栏导航 + 主内容区 ---------- */
+  @media (min-width:1024px){
+    .app{flex-direction:row;}
+    .toast{top:24px;}
+    .sidebar{display:flex;flex-direction:column;gap:24px;flex:0 0 276px;width:276px;
+      background:var(--chrome);border-right:1px solid var(--border);padding:26px 18px 22px;
+      min-height:0;overflow-y:auto;}
+    .topbar,.tabs{display:none;}
+    .brand{display:flex;align-items:center;gap:12px;padding:0 6px;}
+    .brand .logo{width:42px;height:42px;flex:0 0 42px;border-radius:13px;}
+    .brand b{display:block;font-family:var(--font-display);font-size:20px;line-height:1.35;}
+    .brand i{display:block;font-style:normal;font-size:var(--fs-cap);color:var(--muted);margin-top:2px;}
+    .sidenav{display:flex;flex-direction:column;gap:4px;}
+    .navitem{display:flex;align-items:center;gap:11px;min-height:48px;padding:0 12px;border:0;border-radius:12px;
+      background:transparent;color:var(--fg);cursor:pointer;font-family:inherit;font-size:var(--fs-p);
+      font-weight:500;text-align:left;transition:background .15s,color .15s;}
+    .navitem .ic{width:20px;height:20px;font-size:20px;color:var(--muted);}
+    .navitem:hover{background:var(--surface-2);}
+    .navitem.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+    .navitem.active .ic{color:var(--accent-ink);stroke-width:2.1;}
+    .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:12px;}
+    .side-foot p{font-size:var(--fs-cap);line-height:1.6;color:var(--muted);padding:0 6px;}
+    .side-btn{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 12px;border:1px solid var(--border-strong);
+      border-radius:12px;background:var(--surface);color:var(--fg);cursor:pointer;font-family:inherit;
+      font-size:var(--fs-sm);font-weight:500;transition:background .15s,border-color .15s;}
+    .side-btn:hover{background:var(--surface-2);border-color:var(--fg);}
+    .side-btn .ic{width:18px;height:18px;font-size:18px;}
+
+    /* width:100% 必须留着：只写 max-width + margin:auto 时，auto 外边距会取消
+       flex 的 stretch，让聊天列按“内容宽度”收缩——消息短（如清空对话后）就会突然变窄。 */
+    #view-chat{width:100%;max-width:980px;margin:0 auto;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+    .chat{padding:28px 36px 10px;}
+    .msg-body{max-width:min(78%,620px);}
+    .composer{padding:16px 36px 22px;}
+    .composer-inner{max-width:780px;}
+    .agent-bar{max-width:680px;margin:0 auto;}
+
+    .view.scroll{padding:30px 36px 44px;}
+    .view.scroll.active{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-content:start;}
+    .view.scroll .panel{margin-bottom:0;}
+    .panel{padding:24px 26px;}
+    .span-2{grid-column:1/-1;}
+    .view.stack.active{display:flex;align-items:center;}
+    .view.stack .panel{width:100%;max-width:820px;}
+    .cal-cell{aspect-ratio:1/1;min-height:0;padding:0;}
+    .donut-row{flex-direction:row;align-items:center;gap:34px;}
+    .donut-row .legend{flex:1;}
+    .legend{gap:10px 20px;}
+  }
+
+  @media (min-width:1280px){
+    .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr));}
+  }
+
+  @media (min-width:1500px){
+    .sidebar{flex-basis:300px;width:300px;}
+    #view-chat{max-width:1040px;}
+  }
+
+  /* 窄屏两处收尾：
+     1) 输入框占位文案较长会折成两行，min-height:52px 只够一行，第二行会被裁掉；
+     2) 四位伙伴在 flex-wrap 下会断成 3+1，改成规整的 2×2 更稳。 */
+  /* 手机端紧凑化：把高度让给中间聊天区（电脑端完全不动）。
+     关键：agent 选择区原本在 ≤600px 被设成 2×2 网格、占两行约 100px，
+     是聊天框被挤短的主因 —— 这里改回单行、隐藏角色副文案，4 个 chip 一行放得下。 */
+  @media (max-width:600px){
+    .agent-bar{display:flex;flex-wrap:nowrap;gap:6px;}      /* 不再堆成 2×2 占两行 */
+    .agent-chip{justify-content:center;min-height:38px;padding:7px 4px;font-size:13px;}
+    .ac-role{display:none;}                                  /* 手机上只留图标+短名，省一行 */
+    .ac-top{font-size:13px;}
+    .composer textarea{min-height:56px;}                     /* 占位文案已缩短，不必占 84px */
+    .composer{padding:10px 12px calc(10px + env(safe-area-inset-bottom));}
+    .composer-inner{gap:8px;}
+    .topbar{padding:calc(8px + env(safe-area-inset-top)) 14px 8px;}
+    .logo{width:34px;height:34px;flex:0 0 34px;}
+    .logo .ic{width:19px;height:19px;font-size:19px;}
+    .tabs{min-height:46px;padding:5px;gap:4px;}
+    .tab{min-height:46px;padding:7px 3px;}
+    .view{padding:12px 12px calc(16px + env(safe-area-inset-bottom));}
+    .chat{padding:14px 12px 6px;}
+  }
+  /* 话筒已挪进输入框内部、发送收成 52px 圆钮，一行本来就放得下，
+     所以不再需要"按钮换行 + 输入框独占整宽"那套救急写法。
+     这里只把发送钮略缩一点，给输入框多留几像素。 */
+  @media (max-width:520px){
+    .composer .row{flex-wrap:nowrap;gap:8px;}
+    .send{width:48px;height:48px;}
+    .send .ic{width:20px;height:20px;font-size:20px;}
+  }
+
+  @media (max-width:420px){
+    .topbar h1{font-size:20px;}
+    .topbar .sub{display:none;}
+    .topbar{gap:8px;}
+    .topbar-actions{gap:6px;}
+    .tabs{gap:4px;padding:5px;}
+    .tab{font-size:13px;padding:8px 3px;}
+    .panel{padding:16px;}
+    .cal-grid{gap:6px;}
+    .cal-cell{font-size:12.5px;}
+    .donut{width:170px;height:170px;--dh:32px;--dhr:53px;}
+  }
+
+  /* ===== 信箱隐喻：把每条倾诉当成一封投进树洞的信 ===== */
+  /* 1) 用户气泡做成信纸样式：浅绿底 + 虚线边 + 折角 */
+  .msg.user .bubble{
+    background:var(--accent-soft);
+    color:var(--fg);
+    border:1px dashed var(--accent-line);
+    border-radius:16px 16px 4px 16px;
+    position:relative;
+  }
+  .msg.user .bubble::before{ /* 右上折角 */
+    content:""; position:absolute; top:-1px; right:-1px;
+    border-width:0 13px 13px 0; border-style:solid;
+    border-color:transparent var(--surface) transparent transparent;
+    border-top-right-radius:4px;
+  }
+  /* 2) 投递回执：气泡下方极轻的「已投入树洞信箱」微标记 */
+  .letter-receipt{
+    align-self:flex-end; font-size:11.5px; color:var(--muted);
+    display:inline-flex; align-items:center; gap:3px; margin-top:3px; opacity:.8;
+  }
+  /* 6) 空信箱 / 满信箱状态 */
+  .mail-empty{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; text-align:center; color:var(--muted); padding:34px 22px; margin-top:6vh;
+  }
+  .mail-empty .big{font-size:44px; line-height:1;}
+  .mail-empty b{color:var(--accent-ink);}
+  /* 5) 写给未来的信：复用通用 .mask/.sheet */
+  .future-preset{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px;}
+  .future-preset .ghost{font-size:13px;padding:7px 12px;}
+  .future-preset .ghost.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+  .future-list{margin-top:14px;display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto;}
+  .future-sec{margin:10px 0 0;font-size:12px;color:var(--muted);}
+  .future-item{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:13px;}
+  .future-item .fi-when{color:var(--muted);font-size:12px;}
+  .future-item .fi-del{cursor:pointer;color:var(--warn);border:none;background:none;font-size:13px;}
+  .future-item .fi-read{cursor:pointer;color:var(--accent-ink);border:none;background:none;font-size:13px;font-weight:600;}
+  .future-item.arrived{border-color:var(--accent-line);background:var(--accent-soft);}
+  details.future-item{display:block;}
+  details.future-item summary{cursor:pointer;font-size:13px;color:var(--accent-ink);list-style:none;}
+  details.future-item summary::-webkit-details-marker{display:none;}
+  details.future-item .fi-text{white-space:pre-wrap;margin-top:8px;font-size:13px;line-height:1.7;color:var(--fg);}
+  /* 投递回聊天流的信：实体卡片（未点「收进信箱」前，每次打开都会重现） */
+  .future-card{max-width:640px;margin:16px auto;text-align:left;display:flex;gap:12px;
+    background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:16px;padding:14px 16px;color:var(--fg);}
+  .future-card .sys-ic{flex:0 0 auto;font-size:20px;line-height:1.2;}
+  .future-card .fc-body{flex:1;min-width:0;}
+  .future-card .sys-label{color:var(--accent-ink);}
+  .future-card .fc-text{white-space:pre-wrap;font-size:var(--fs-body);line-height:1.75;color:var(--fg);margin:2px 0 10px;}
+  .future-card .fc-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .future-card .fc-when{color:var(--muted);font-size:12px;}
+  .future-card .fc-read{cursor:pointer;border:1px solid var(--accent-line);background:var(--surface);
+    color:var(--accent-ink);border-radius:999px;padding:5px 13px;font-size:12.5px;}
+  .future-card .fc-read:hover{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+  .future-card.done{opacity:.7;}
+  .future-card.done .fc-read{border:none;background:none;color:var(--muted);cursor:default;}
+  /* 收下之后卡片离场：先亮一下「已收进信箱」，再淡出上移，随后从聊天区移除 */
+  .future-card.done.leaving{opacity:0;transform:translateY(-6px);pointer-events:none;
+    transition:opacity .34s ease,transform .34s ease;}
+  /* 有未查收的信：聊天入口上的小红点 */
+  .navitem{position:relative;}
+  .tab.has-dot::after,.navitem.has-dot::after{content:'';position:absolute;top:5px;right:calc(50% - 24px);
+    width:7px;height:7px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 2px var(--surface);}
+  .navitem.has-dot::after{top:50%;right:12px;margin-top:-3px;}
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="ic-leaf" viewBox="0 0 24 24"><path d="M20 4C11 4 4 10 4 20c9 0 16-6 16-16z"/><path d="M5 19 20 4"/></symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M20.5 11.6a8.4 8.4 0 0 1-8.7 8.3 9 9 0 0 1-3.4-.7L3.5 21l1.7-4.6a8.3 8.3 0 0 1-1-4A8.4 8.4 0 0 1 12.9 3.3a8.4 8.4 0 0 1 7.6 8.3z"/></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3.2v3.6M16 3.2v3.6M3.5 10.2h17"/></symbol>
+  <symbol id="ic-chart" viewBox="0 0 24 24"><path d="M4.5 20h15"/><path d="M7.5 20v-6.5M12 20V6.5M16.5 20v-9"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.8 20.2c1.3-3.6 4-5.4 7.2-5.4s5.9 1.8 7.2 5.4"/></symbol>
+  <symbol id="ic-settings" viewBox="0 0 24 24"><path d="M4 7.5h8.2M17 7.5h3M4 16.5h3M11.8 16.5H20"/><circle cx="14.6" cy="7.5" r="2.4"/><circle cx="9.4" cy="16.5" r="2.4"/></symbol>
+  <symbol id="ic-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.6 11.6a6.4 6.4 0 0 0 12.8 0M12 18v3"/></symbol>
+  <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2.4"/></symbol>
+  <!-- 发送：实心上箭头。只在这里用 fill 渲染（.send .ic svg 里显式覆盖），其余图标仍是线性描边 -->
+  <symbol id="ic-send" viewBox="0 0 24 24"><path d="M12 3.4 20.6 20.7 12 16.2 3.4 20.7z"/></symbol>
+  <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.6 7V5.4A1.4 1.4 0 0 1 11 4h2a1.4 1.4 0 0 1 1.4 1.4V7M6.6 7l.8 12a1.7 1.7 0 0 0 1.7 1.6h5.8a1.7 1.7 0 0 0 1.7-1.6l.8-12"/></symbol>
+  <symbol id="ic-breath" viewBox="0 0 24 24"><path d="M3.5 8.5h11.8a2.9 2.9 0 1 0-2.9-2.9"/><path d="M3.5 13.6h8.2a2.7 2.7 0 1 1-2.7 2.7"/><path d="M3.5 18.6h5.6"/></symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24"><path d="M6.4 3.2v17.6"/><path d="M6.4 4.6h11.2l-2.4 4 2.4 4H6.4z"/></symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3.4l1.9 5.4 5.4 1.9-5.4 1.9L12 18l-1.9-5.4L4.7 10.7l5.4-1.9z"/></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 4.4v5.2h-5.2"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.4l7 2.6v5.4c0 4.4-2.9 7.7-7 8.9-4.1-1.2-7-4.5-7-8.9V6z"/><path d="M9 12.1l2.2 2.2 4-4.3"/></symbol>
+  <symbol id="ic-route" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M15.4 8.6l-1.9 4.9-4.9 1.9 1.9-4.9z"/></symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4.5 12h13.6M13 6.4l5.6 5.6-5.6 5.6"/></symbol>
+  <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 20.2S4.4 15.7 4.4 10.4A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.6 2.8c0 5.3-7.6 9.8-7.6 9.8z"/></symbol>
+  <symbol id="ic-book" viewBox="0 0 24 24"><path d="M12 7.4C10.5 6 8.6 5.3 6.3 5.3c-.8 0-1.5.1-2 .3v12.6c.5-.2 1.2-.3 2-.3 2.3 0 4.2.7 5.7 2.1 1.5-1.4 3.4-2.1 5.7-2.1.8 0 1.5.1 2 .3V5.6c-.5-.2-1.2-.3-2-.3-2.3 0-4.2.7-5.7 2.1z"/><path d="M12 7.4V20"/></symbol>
+  <symbol id="ic-clip" viewBox="0 0 24 24"><rect x="5" y="4.6" width="14" height="16" rx="2.6"/><path d="M9.2 4.6V3.9A1.4 1.4 0 0 1 10.6 2.5h2.8A1.4 1.4 0 0 1 14.8 3.9v.7"/><path d="M9.3 13.4l2 2 3.6-4.2"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" data-od-id="sidebar-nav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><span class="ic"><svg viewBox="0 0 24 24"><use href="#ic-leaf"/></svg></span></span>
+      <span><b>树洞信箱</b><i>把心里话，投进树洞</i></span>
+    </div>
+    <nav class="sidenav" aria-label="主导航">
+      <button type="button" class="navitem active" id="nav-chat" data-od-id="nav-chat" onclick="showView('chat')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-chat"/></svg></span>倾诉</button>
+      <button type="button" class="navitem" id="nav-calendar" data-od-id="nav-calendar" onclick="showView('calendar')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span>心声日历</button>
+      <button type="button" class="navitem" id="nav-insight" data-od-id="nav-insight" onclick="showView('insight')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg></span>树洞晴雨表</button>
+      <button type="button" class="navitem" id="nav-profile" data-od-id="nav-profile" onclick="showView('profile')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-user"/></svg></span>我的洞察</button>
+    </nav>
+    <div class="side-foot">
+      <p>不评判 · 不泄密 · 随时在<br>记录只留在这台设备上</p>
+      <button type="button" class="side-btn" data-od-id="future-btn-side" onclick="openFutureLetter()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-flag"/></svg></span>写给未来的信</button>
+      <button type="button" class="side-btn" data-od-id="breath-btn-side" onclick="openBreath()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-breath"/></svg></span>一分钟呼吸放松</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar" data-od-id="topbar">
+      <div class="logo" aria-hidden="true"><span class="ic"><svg viewBox="0 0 24 24"><use href="#ic-leaf"/></svg></span></div>
+      <div>
+        <h1>树洞信箱</h1>
+        <div class="sub">不评判 · 不泄密 · 随时在</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="topbar-actions">
+        <button type="button" class="tool-btn" data-od-id="future-btn-top" onclick="openFutureLetter()" title="写给未来的信" aria-label="写给未来的信"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-flag"/></svg></span></button>
+        <button type="button" class="tool-btn" data-od-id="breath-btn-top" onclick="openBreath()" title="一分钟呼吸放松" aria-label="一分钟呼吸放松"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-breath"/></svg></span></button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="主导航">
+      <button type="button" class="tab active" id="tab-chat" data-od-id="tab-chat" onclick="showView('chat')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-chat"/></svg></span>倾诉</button>
+      <button type="button" class="tab" id="tab-calendar" data-od-id="tab-calendar" onclick="showView('calendar')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span>心声日历</button>
+      <button type="button" class="tab" id="tab-insight" data-od-id="tab-insight" onclick="showView('insight')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg></span>树洞晴雨表</button>
+      <button type="button" class="tab" id="tab-profile" data-od-id="tab-profile" onclick="showView('profile')"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-user"/></svg></span>我的洞察</button>
+    </nav>
+
+<!-- 视图：倾诉 -->
+<div class="view active" id="view-chat" data-od-id="view-chat">
+  <div class="chat" id="chat" data-od-id="chat-thread">
+    <div class="msg bot">
+      <div class="ava" aria-hidden="true"><span class="ic">🌿</span></div>
+      <div class="msg-body">
+        <div class="bubble" id="welcome">你好，我是你的树洞。这里没有对错，也没有评判。<br>我身边还有几位伙伴：<b>小陪</b>陪你碎碎念、<b>小咨</b>答你心里的小问号、<b>小测</b>帮你看看最近状态。默认由 <b>小站</b> 自动分诊——想直接找谁，点下面切换就行。</div>
+      </div>
+    </div>
+    <div class="mail-empty" id="mailEmpty" data-od-id="mail-empty">
+      <div class="big">📭</div>
+      <div>你的树洞信箱还是空的。</div>
+      <div>投出第一封信，开始和树洞说话——<b>不评判、不泄密</b>。</div>
+    </div>
+  </div>
+
+  <div class="composer" data-od-id="composer">
+    <div class="composer-inner">
+      <div class="agent-bar" id="agentBar" role="group" aria-label="选择接待的伙伴">
+        <button type="button" class="agent-chip active" data-agent="auto" data-od-id="agent-chip-auto" onclick="setAgent('auto')" aria-label="小站 · 智能分诊"><span class="ac-top"><span class="ic" aria-hidden="true">🧭</span>小站</span><span class="ac-role">智能分诊</span></button>
+        <button type="button" class="agent-chip" data-agent="pei" data-od-id="agent-chip-pei" onclick="setAgent('pei')" aria-label="小陪 · 日常陪伴"><span class="ac-top"><span class="ic" aria-hidden="true">💗</span>小陪</span><span class="ac-role">陪伴</span></button>
+        <button type="button" class="agent-chip" data-agent="zi" data-od-id="agent-chip-zi" onclick="setAgent('zi')" aria-label="小咨 · 知识咨询"><span class="ac-top"><span class="ic" aria-hidden="true">📖</span>小咨</span><span class="ac-role">咨询</span></button>
+        <button type="button" class="agent-chip" data-agent="ce" data-od-id="agent-chip-ce" onclick="setAgent('ce')" aria-label="小测 · 状态自测"><span class="ac-top"><span class="ic" aria-hidden="true">📋</span>小测</span><span class="ac-role">自测</span></button>
+      </div>
+      <div class="row">
+        <!-- 话筒放进输入框内部右下角，不再单独占一格；发送收成圆形图标按钮，一行放得下 -->
+        <div class="input-wrap">
+          <textarea id="input" placeholder="把今天压在你心里的话，写在这里…" rows="1" aria-label="倾诉内容" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}"></textarea>
+          <button type="button" class="mic" id="micBtn" data-od-id="mic-btn" title="语音输入（说中文自动转文字）" onclick="toggleVoice()" aria-label="语音输入"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-mic"/></svg></span></button>
+        </div>
+        <button type="button" class="send" id="sendBtn" data-od-id="send-btn" onclick="send()" title="投进树洞" aria-label="投进树洞"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-send"/></svg></span></button>
+      </div>
+      <div class="voice-status" id="voiceStatus" data-od-id="voice-status"></div><!-- 静态说明已去掉，仅保留动态语音状态（识别中/报错） -->
+    </div>
+  </div>
+</div>
+
+<!-- 视图：心声日历 -->
+<div class="view scroll" id="view-calendar" data-od-id="view-calendar">
+  <div class="panel span-2" data-od-id="panel-calendar">
+    <h3>最近 7 天 · 我的心声日历</h3>
+    <p class="muted">每一次倾诉的心情色卡都会留在这里（仅存本机）。颜色越冷，说明那时越需要被听见。</p>
+    <div class="cal-grid" id="calGrid"></div>
+    <div id="calSpark" style="margin-top:10px;"></div>
+    <div id="calStat" class="muted" style="margin-top:8px;"></div>
+  </div>
+  <div class="panel panel-fill" data-od-id="panel-topics">
+    <h3>这段时间，你在意的事</h3>
+    <p class="muted">树洞会默默记下你常聊到的话题（本地统计，不上传）。按关键词识别，只认明确的说法，偶有误差。</p>
+    <div id="topicBars" style="margin-top:10px;"></div>
+  </div>
+  <div class="panel panel-fill" data-od-id="panel-privacy">
+    <h3>数据与隐私</h3>
+    <div class="privacy-acts">
+      <button type="button" class="ghost" data-od-id="export-data-btn" onclick="exportMyData()"><span class="ic" aria-hidden="true">📤</span>导出我的本机记录</button>
+      <button type="button" class="ghost" data-od-id="clear-data-btn" onclick="clearMyData()"><span class="ic" aria-hidden="true">🗑️</span>清空我的全部心声数据</button>
+    </div>
+    <p class="muted privacy-note">两个操作都只动这台设备：导出的是本机已有的记录（不含聊天原文，也不含 API Key），清空会把它从这台设备删干净。树洞从不保存你是谁。</p>
+  </div>
+</div>
+
+<!-- 视图：树洞晴雨表（个人情绪记录） -->
+<div class="view scroll" id="view-insight" data-od-id="view-insight">
+  <div class="panel span-2" data-od-id="panel-insight-overview">
+    <span class="badge">小报 · 树洞晴雨表（仅存本机）<span class="conn" id="backendBeacon" title="正在检测校园晴雨表连接…"></span></span>
+    <h3>树洞晴雨表</h3>
+    <p class="muted">这是<b>你自己的</b>情绪记录——把每次倾诉的心情汇成一张画像，只统计「日期 + 情绪 + 话题」，全部存在你自己的设备上，<b>不会进入心理中心的管理台账</b>。你聊天时投出的心情，会化作一封<b>匿名信实时送达校园晴雨表</b>，脱敏后交给心理中心看整体趋势；这封信不经过本机，也不展示在这里。</p>
+    <div class="donut-row">
+      <div class="donut" id="donut" role="img" aria-label="我的情绪分布环形图">
+        <div class="donut-center">
+          <div class="dc-num">—</div>
+          <div class="dc-lab">还没有记录</div>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div id="insightMetrics" style="margin-top:14px;"></div>
+    <div id="insightAlert"></div>
+  </div>
+  <div class="panel" data-od-id="panel-topic-cloud">
+    <h3>我常提起的话题</h3>
+    <p class="muted">从你自己的倾诉里提炼的高频话题，帮你看见最近在在意什么。</p>
+    <div class="cloud" id="topicCloud"></div>
+  </div>
+  <div class="panel" data-od-id="panel-why">
+    <h3>为什么它值得被需要</h3>
+    <p>年轻人最常见的不是"病了"，而是<b>长期、低频、说不出口的累</b>。他们未必想看医生，但需要<b>一个随时在、不评判、危急时拉一把</b>的入口。</p>
+    <p class="muted" style="margin-top:10px;">树洞信箱把"求助"降级成"倾诉"——门槛低一点，愿意开口的人就多一点。</p>
+  </div>
+</div>
+
+<!-- 视图：我的对话洞察（硬分析·第四视图） -->
+<div class="view scroll stack" id="view-profile" data-od-id="view-profile">
+  <div class="panel" data-od-id="panel-profile">
+    <span class="badge">硬分析 · 个人心理画像</span>
+    <h3>我的对话洞察</h3>
+    <p class="muted">基于你今天（及历史）的倾诉，做一层结构化分析：情绪极性、主导话题、风险等级。点「生成洞察」可调用模型，结合你最近的倾诉写一段温柔的个人小结——这部分内容会发给模型服务用来生成，但<b>不会进入心理中心的管理台账</b>，小结只存在你自己的设备上。</p>
+    <div class="gauge" id="profileScore"><span class="num">—</span><span class="lab">整体情绪极性（-1 到 +1）</span></div>
+    <div id="profileRisk"></div>
+    <div id="profileTopics" style="margin-top:10px;"></div>
+    <button type="button" class="ghost" id="insightBtn" data-od-id="insight-btn" onclick="generateInsight()" style="margin-top:16px;width:100%;justify-content:center;"><span class="ic" aria-hidden="true">✨</span>生成我的对话洞察</button>
+    <div id="profileSummary" class="insight-sum" style="display:none;"></div>
+  </div>
+</div>
+
+  </div><!-- /.main -->
+</div><!-- /.app -->
+
+<!-- 危机转介弹层（小源） -->
+<div class="mask" id="crisisMask" data-od-id="crisis-modal">
+  <div class="sheet crisis" data-od-id="crisis-sheet">
+    <div class="c-title">我有点担心你</div>
+    <div>你刚才说的话，让我很在意。我可能没法替你扛下所有，但有一些人，随时愿意接住你：</div>
+    <ul>
+      <li>全国心理援助热线：<span class="hot">12356</span>（24 小时）</li>
+      <li>希望 24 热线：<span class="hot">400-161-9995</span></li>
+      <li>如果你在学校：请联系学校心理中心或辅导员</li>
+      <li>紧急情况请直接拨打 <span class="hot">120 / 110</span></li>
+    </ul>
+    <div>你不是负担，你值得被好好对待。先看看这些，好吗？</div>
+    <div class="btnrow">
+      <button type="button" class="primary-btn" onclick="closeCrisis()">我记住了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 标准化小测弹层（PHQ-9 + GAD-7） -->
+<div class="mask" id="quizMask" data-od-id="quiz-modal">
+  <div class="sheet quiz-sheet" data-od-id="quiz-sheet">
+    <div id="quizBody"></div>
+  </div>
+</div>
+
+<!-- 正念呼吸浮层（小陪触发，纯前端） -->
+<div class="mask breath-mask" id="breathMask" data-od-id="breath-modal">
+  <div class="breath-sheet" data-od-id="breath-sheet">
+    <h3>一分钟呼吸放松</h3>
+    <div class="sub">跟着圆圈：吸气时放大，呼气时缩小。慢慢来，几个回合就好。</div>
+    <div class="breath-circle in" id="breathCircle">准备</div>
+    <div class="breath-count" id="breathCount"></div>
+    <div class="breath-btnrow">
+      <button type="button" class="ghost" onclick="closeBreath()">结束</button>
+    </div>
+  </div>
+</div>
+
+<!-- 纪念卡弹层 -->
+<div class="mask" id="cardMask" data-od-id="card-modal">
+  <div class="sheet" data-od-id="card-sheet">
+    <h3>这次倾诉，到这里</h3>
+    <div id="cardText" style="font-size:16px;color:var(--fg);line-height:1.8;white-space:pre-wrap;"></div>
+    <canvas id="cardCanvas" width="600" height="360"></canvas>
+    <div class="card-note" id="cardReportNote">本次心情将匿名汇入校园晴雨表，帮心理中心了解整体趋势。</div>
+    <div class="btnrow">
+      <button type="button" class="cancel-btn" onclick="closeCard()">关闭</button>
+      <button type="button" class="primary-btn" onclick="downloadCard()">保存这张卡片</button>
+    </div>
+  </div>
+</div>
+
+<!-- 写给未来的信（纯本机，定时「投递」回来看） -->
+<div class="mask" id="futureMask" data-od-id="future-modal">
+  <div class="sheet" data-od-id="future-sheet">
+    <h3><span class="ic" style="width:1em;height:1em;vertical-align:-.09em;margin-right:7px"><svg viewBox="0 0 24 24"><use href="#ic-flag"/></svg></span>写给未来的信</h3>
+    <div class="sub">把现在的心里话封存起来，设定一个日子，到那天树洞会把它「投递」回给你——它会在「倾诉」里出现，并一直留着，直到你亲手点「✓ 收进信箱」（中途刷新、关页面都不会丢）。收下后卡片会自动退出聊天区，想回看随时在这里的「已收下」里点开。只有这台设备看得到，树洞不留存你是谁。</div>
+    <textarea id="futureText" class="kb-input" rows="4" placeholder="写点什么给以后的自己吧…（比如现在最想记住的一件事、一个目标、一句鼓励）" style="width:100%;"></textarea>
+    <div class="future-preset" id="futurePreset">
+      <button type="button" class="ghost" data-days="7" onclick="pickFutureDays(this)">一周后</button>
+      <button type="button" class="ghost" data-days="30" onclick="pickFutureDays(this)">一个月后</button>
+      <button type="button" class="ghost" data-days="180" onclick="pickFutureDays(this)">半年后</button>
+      <button type="button" class="ghost" data-days="365" onclick="pickFutureDays(this)">一年后</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);">
+      <span>或指定日期：</span>
+      <input type="date" id="futureDate" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--fg);" />
+    </div>
+    <div class="btnrow" style="margin-top:16px;">
+      <button type="button" class="cancel-btn" onclick="closeFutureLetter()">取消</button>
+      <button type="button" class="primary-btn" data-od-id="future-save" onclick="saveFutureLetter()">封存这封信</button>
+    </div>
+    <div class="future-list" id="futureList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- 模型配置 ---------------- */
+/* 学生端不再持有任何 Key / 模型选择：全部走中心代理 /api/chat（服务端持有 Key 并轮转）。
+ * 当中心未配 Key（/api/chat 返回 503）时，各调用方已有本地兜底（关键词分诊 / 本地安慰语等）。 */
+
+/* ---------- 中心 Key 代理（前端零密钥） ---------- */
+async function callLLM(body){
+  const provider = body.model || 'deepseek';
+  return await fetch(apiBase()+'api/chat', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+}
+
+const SYSTEM_PROMPT = `你是小陪，一个话不多、但愿意一直陪着的老朋友。你不讲大道理，只是坐在旁边听人碎碎念。
+
+【四阶推进】你只做听和陪。按「共情 → 澄清 → 探索」往前走，你将永远不进第四阶。
+- 第 1 阶 共情：先复述你听到的感受。情绪词的分量必须贴着用户的原话来——ta 只说"有点烦""吵架了"，就别升级成"崩溃""慌成这样"；ta 真说"撑不住了"，才配得上重的回应。
+- 第 2 阶 澄清：帮他把手理开——"你说的这事，是 XX 这块最让你难受，对吧？"一次只收一个焦点，别一次问三件事。
+- 第 3 阶 探索：最多问一个开放式问题，让 ta 自己看见（"这件事里你最难受的是哪一块？""这件事发生前，有什么不太一样吗？"）。
+- 不做第 4 阶：你不给建议、不列清单、不推荐活动／音乐／资源／咨询师——那是小咨的事。
+
+【推进规则】
+- 连续两轮没有新信息 → 必须进入澄清，不许继续在同一层反复共情。
+- 澄清清楚了、ta 还赖在情绪里 → 用一句话把节奏交还给他："想先让我多听会儿，还是想去小咨那儿找找办法？"
+- 只有 ta 明确说"想聊聊办法"时，才提示找小咨。你不替他做这个转介。
+- **只要出现收尾信号**（"算了""就这样吧""不说了""随便吧""我也不知道""没意思了"等，或连续三轮都没换新信息）→ 立刻给上面那个二选一，别再追问细节。收尾信号出现时，说明 ta 已经在心里预备收场了。
+- **交棒怎么说**：转小咨只用"这种捋办法的事，小咨更在行"这类说法，**绝不说"我帮不了你""这不是我负责的""我这儿只负责听你说"**——那像把人推出去。交棒永远先接住他刚说的那句（尽量用他的原话），再把选择递过去。
+- 如果他这一句里**既有新信息、又要办法**（如"好像都有，你帮我分析分析"）：先接住新信息，再顺手把棒递出去，两件事在同一条消息里做完，不许只挑一件。
+
+你说话的样子（照着这种感觉来，别写成客服话术）：
+- 句子可以断开，带语气词（呀、呢、哎、嘛、啦），像真人在微信上随口回。
+- 用户说减肥失败，你回："哎，又没扛住是吧，这种挫败感最烦人了。"
+- 用户说累，你回："累成这样啦……今天真是辛苦你了。"
+- 用户说工作出错被老板骂，你回："被当众说一顿最憋屈了。晚上回去好好歇歇，这事儿真不怪你一个人。"
+- 偶尔只回一句、偶尔反问（"然后呢？""那会儿你啥心情？"）、偶尔沉默式共情（"……（轻轻叹口气）"）都行，别每轮都写满。
+
+注意：
+- 不评判、不说教、别说"你应该…"；你不是心理医生，不做诊断。
+- **如果他提到轻生、自伤：第一句就把出口递到他手上**——"你这句话让我很在意。实在难受，可以打心理热线 12356，学校心理中心也一直开着的样子。"**先给资源，再问是什么让他有这种感觉，顺序不能反**；别追问细节、别评价、别轻描淡写。
+- **当他描述身体上的紧**（喘不过气、喘不上气、心跳得厉害、胸闷、手抖、发冷）：跳过第 2、3 阶，只回一两句先把他稳住，然后陪他把气顺过来（"跟着我，慢慢吸气……再慢慢吐出来"）。**这种情况一个字都不要列建议清单**——尤其别连着说"出去走走／找朋友／找专业人士"，人在喘不上气的时候根本看不进这些，反而更慌。
+- 如果他问"你能做什么／你是谁"，碎碎念地介绍：自己是专门听人说话的，"你随便说，我听着呢"，并说想给建议找小咨、想看状态找小测。
+- **你就是小陪本人**：你可以建议他去找小咨、找小测，但绝不能说"去小陪那儿""找小陪"——陪着他的那个人就是你。
+
+每次回复一两句就够，控制在 80 字内，像朋友聊天，不像客服。
+**你每轮回复就是微信上的一条消息：一口气说完，不换行、不空行、不用列表或小标题。**`;
+
+/* ---------------- 多 Agent 体系 ---------------- */
+const CONSULT_PROMPT = `你是小咨，校园心理知识顾问，像一位受过心理咨询训练、又愿意蹲下来听你说的学长学姐，专治"想不通、不知道怎么办"。
+
+你回答的专业骨架（四阶：共情 → 澄清 → 探索 → 干预。每次都按这个顺序走，但按用户需要取舍，不必每段全用）：
+1. 共情（第 1 阶）：先用半句话验证情绪，让 ta 感到被听懂。**情绪词的分量必须贴着用户原话来**：ta 只说"吵架了/不顺/有点烦"，就别用"慌成这样""崩溃"这类重词；ta 真说"喘不过气/撑不住了"，才配得上重的回应。不夸大、不抢戏。
+2. 澄清（第 2 阶）：把焦点收准——是事情本身、还是对结果的担心、还是别人怎么看 ta，三选一，**一次只收一个**。焦点收不准就往下讲，等于替 ta 加戏。
+3. 探索（第 3 阶）：帮 ta 看见"想法≠事实"——把"我肯定不行"和"这次没做好"分开；或用一句轻轻的提问让 ta 自己看到盲点（如"你说'所有人都嫌弃我'，有没有一个例外？"）。
+4. 干预（第 4 阶）：1-2 条具体可操作的小步骤（步骤式最好），别列长清单；**给完用一句开放式问题收尾**（如"想先聊聊哪块？"），把节奏交还给 ta。
+5. 【退出条件】走完第 4 阶就收，不要再围绕同一个点反复追问；如果 ta 的状态指向持续两周以上的情绪低落、吃睡失常、功能受损，或出现自伤／轻生念头，**直接转介校心理中心或拨打热线 12356，不要在四阶里继续打转**。
+6. 【推进器】连续两轮停在同一阶上（问两句焦点 ta 还绕回原来的说法）→ 必须往下走一阶，别在原地打转。澄清收不住就直接进探索。
+7. 【硬上限】**只要 ta 已经回复三轮以上、你还没给过任何一条具体的小步骤，这一轮必须给第 4 阶的 1-2 条步骤。**"再问问看""你觉得呢"都不算小步骤；探索不下去就直接给，边给边说"先这样试试看也行"。
+
+说话样子：像同辈聊天，口语、短句，别写长段落。每次回复控制在 130 字内。
+
+注意：
+- **只能基于用户原话里提到的事来回应**。用户没提的场景（比如考试、失眠、恋爱）一个字都不要提——宁可先问一句"是遇到什么事了吗"，也绝不自己假设话题。上面的骨架只示范结构，**骨架里引号中的所有例句（"太正常了""换谁都委屈""有没有一个例外""想先聊聊哪块"等）一个字都不许出现在你的回复里**，每句都要换成贴着 ta 原话的新说法。
+- 不诊断、不开药、不替代专业心理咨询师或医生。持续两周以上的情绪低落、吃睡失常、功能受损，或自伤／轻生念头，按上面的【退出条件】处理——这是专业边界，不是推脱。
+- **当对方描述身体上的紧**（喘不过气、心跳得厉害、胸闷、手抖、发冷），这时候他不需要方法，需要的是先稳住：只回一两句陪着，带他慢慢呼吸（"跟着我，慢慢吸气……再慢慢吐出来"）。**别列建议清单**，也别急着让他"把事写下来""出去走走"——人在喘不上气的时候看不进这些。
+- 如果他问"你能做什么／你是谁"，介绍自己是懂心理知识的顾问："学习压力、人际烦恼、情绪困扰、恋爱家人这些都可以问我。"
+- **你就是小咨本人**：绝对不要说"去小咨那儿""找小咨""小咨更擅长"这类话——那是小陪的台词。学生要找的就是你，用第一人称回答，别把自己当外人、也别替他转介。只有校心理中心、热线 12356 这类真实资源才需要"去找"。`;
+
+const ASSESS_PROMPT = `你是小测，校园心理自测的「标准化量表引导员」。
+
+你的职责边界（非常重要）：
+- 你不再自行编造任何问题。小测的题目是固定的 PHQ-9（抑郁，9 题）与 GAD-7（焦虑，7 题）标准量表，由前端逐题展示，你不要重复出题。
+- 你只在学生完成量表、并把分数与分级（Normal / Mild / Moderate / Severe）交给你时，用 80 字内、温柔非诊断的语气，做一次总结性回应：肯定对方愿意了解自己的状态，按分级给一句轻量建议，并附上"非诊断、如需帮助可拨打全国心理援助热线 12356 或联系校心理中心"。
+- 绝不做正式诊断、绝不给具体医疗方案、绝不暗示"你生病了"。
+- 若对方提到自伤／轻生念头，立即认真建议寻求专业帮助或拨打 12356，并表达在意。
+- 语气像朋友散步随口聊，温和、不沉重。
+- **你就是小测本人**：不要说"去小测那儿做个自测""找小测问问"这类话——你直接带他做就是了。`;
+
+const AGENTS = {
+  pei:{name:'小陪',icon:'heart',prompt:SYSTEM_PROMPT},
+  zi :{name:'小咨',icon:'book', prompt:CONSULT_PROMPT},
+  ce :{name:'小测',icon:'clip', prompt:ASSESS_PROMPT}
+};
+const agentDesc = {pei:'日常陪伴倾听', zi:'校园心理知识咨询', ce:'轻量情绪自测'};
+
+/* 校园心理知识库（模拟 RAG 检索增强） */
+const CAMPUS_KB = [
+  {keywords:['考试','考研','挂科','成绩','复习','紧张','笔试'], title:'考试焦虑',
+   answer:'考前紧张很正常。把复习拆成小块、每天只盯一个小目标；睡前别刷手机，试试 4-7-8 呼吸（吸气4秒-屏息7秒-呼气8秒）。焦虑不是你不行的证据，是身体在帮你进入状态。'},
+  {keywords:['宿舍','室友','同学','吵架','矛盾','孤立','排挤'], title:'宿舍/人际',
+   answer:'和室友闹别扭先别急着定性"合不来"。选个平静的时机把具体不舒服的事说清楚，用"我感觉到…"开头而不是指责。暂时说不开，保持礼貌的距离也是保护自己。'},
+  {keywords:['就业','找工作','实习','面试','前途','迷茫','方向','秋招'], title:'就业与迷茫',
+   answer:'对前途迷茫是二十岁前后的常态，不是你掉队了。先别逼自己想清"一生规划"，做一件小事：改一版简历、聊一位学长、投一个不纠结的岗位。行动会替你想清楚一部分。'},
+  {keywords:['对象','分手','暗恋','恋爱','喜欢','脱单','男朋友','女朋友'], title:'情感困扰',
+   answer:'感情里受挫，痛是真的，但"我不值得被爱"是假的。允许自己难过一阵，别急着用新关系填补。把注意力放回能掌控的事上，慢慢会好起来。'},
+  {keywords:['拖延','懒','不想动','没动力','摆烂'], title:'学业拖延',
+   answer:'拖延往往不是懒，是怕做不好。试试"5分钟起步法"：告诉自己只做5分钟，不做就停——通常一动起来就停不下了。把大任务切成"小到不可能失败"的一步。'},
+  {keywords:['失眠','睡不着','睡不好','熬夜','头疼','胃','身体','健康'], title:'睡眠与疲惫',
+   answer:'睡不好时大脑会放大负面情绪。固定起床时间比固定入睡更有用；睡前一小时离开屏幕、把灯调暗。若连续两周睡差且情绪低落，建议去校医院或心理中心聊聊。'},
+  {keywords:['孤独','没人','一个人','没朋友','孤单'], title:'孤独感',
+   answer:'一个人待着不代表你有问题。试着参加一个低压力的小圈子（社团、球局、读书会），哪怕只旁观也行。想说话的时候，我随时在。'},
+  {keywords:['自卑','不行','差','废物','怀疑自己','没用','糟糕'], title:'自我怀疑',
+   answer:'"我什么都不行"是一种情绪，不是事实。把"我考砸了"和"我这个人废了"分开——前者是可改的具体事件，后者是大脑泄气时编的故事。你撑到现在，说明你没那么弱。'},
+  {keywords:['发脾气','控制不住','易怒','烦躁','情绪波动','一点就炸'], title:'情绪调节',
+   answer:'情绪上头时，身体比脑子快。先别急着处理事情或道歉，给自己10分钟降温：离开现场、用凉水拍脸或做几次4-7-8呼吸。等心率平下来，再决定说什么、做什么。情绪不需要消灭，先让它流过，你再开口。'},
+  {keywords:['紧张手抖','心跳快','喘不过气','手心出汗','发抖','胸口发紧'], title:'焦虑的身体反应',
+   answer:'紧张时手抖、心跳快、喘不上气，是身体的"警报系统"在正常运转——大脑的杏仁核把模糊的威胁当成了危险，启动应激反应。这是生理，不是你脆弱。落地练习：双脚踩实地面、说出眼前3样东西的名字，帮身体确认"现在安全"。'},
+  {keywords:['我是谁','认识自己','不知道自己要什么','了解自己','找不到方向'], title:'自我探索',
+   answer:'二十岁前后还在"找自己"完全正常，大多数人是边活边看清。别逼自己立刻给答案，用小事试探：做什么事会忘记时间？被夸时你接住的特质是什么？答案不是想出来的，是做出来后被回头的你发现的。'},
+  {keywords:['不适应','新环境','落差感','陌生','难以融入','大一','想家','想爸妈','想家了','恋家'], title:'环境适应',
+   answer:'从熟悉的环境换到大学，落差和想家不是弱点，是依恋系统在提醒你在乎什么。先固定一两个"锚点"：每周同时间给家人视频、在同个食堂同个角落吃饭。等新节奏变成习惯，陌生感会慢慢退潮。'},
+  {keywords:['压力太大','快扛不住','透不过气','绷不住','应激','撑不住'], title:'压力管理',
+   answer:'"快扛不住"本身是个重要信号，说明你一直在硬撑。先把"全部都要做好"拆成"今天只做一件"，给大脑减负。如果连续几周睡不好、吃不下、对任何事都提不起劲，别一个人扛——去找学校心理中心或信任的人说一句"我最近不太好"。'},
+  {keywords:['不敢说话','不会表达','说不出口','表达感受','拒绝别人','讨好'], title:'表达与沟通',
+   answer:'很多"不会说"其实是怕说了不被接住。可以先从"我感觉到…"开头说具体的小事，而不是等攒成大委屈再爆发。拒绝别人也不必道歉成篇——一句"这个我暂时帮不了"就够了，关系不会因此碎掉。'},
+  {keywords:['查重','重复率','降重','论文','改稿','改论文','毕设','答辩','导师让改','写不出来','改到崩溃'], title:'论文与查重压力',
+   answer:'论文查重率高、被导师反复打回，那种"改到崩溃"的无力感很真实，但它说明的是格式和表述要调整，不是你能力不行。处理顺序：先改结构再抠句子，标红段落按"删-换-引"三步处理（删掉可有可无的铺垫、换成自己的表述、必须保留的改成规范引用）。把"一次性过"的期待降到"今天降两个点"，每改一版就存一次、给自己一个小确认。查重焦虑上来的时候，离开屏幕走两步、做几次深呼吸，回来再改效率更高。'},
+  {keywords:['父母','家人','家里','家庭','爸妈','妈妈','爸爸','家长','期望','期待','催','逼','管我','不理解我','念叨','争吵','代沟','听不进'], title:'家人关系与期望',
+   answer:'和父母在期望上拧着，是长大的必修课，不是你不孝顺或他们不讲理——两代人手里拿的是不同的剧本。先别急着吵赢，试着把"你根本不理解我"换成一次具体表达："你们说的我都听见了，但我想先按自己的节奏试一次。"期待冲突最伤人的地方是那股"被安排感"，所以哪怕小到选一门课、晚归说一声，主动给自己争取一点"我说了算"的空间，关系都会松一口气。如果当面总谈崩，写封信或发一段长消息，有时比吵架更说得出真心话。'},
+  {keywords:['我是谁','认识自己','不知道自己要什么','找不到方向','没目标','空虚','意义','价值感','活着为了什么','自我','迷茫自己'], title:'自我认同',
+   answer:'二十岁前后还在"我是谁"里打转，是绝大多数人的常态，不是你落后了。认同不是想出来的，是做出来的：做什么事会忘记时间？被夸时你接住的特质是什么？哪些场合你事后觉得"这才是我"？答案藏在这些小瞬间里。别逼自己立刻给出一个完整人设，先允许自己"还在试"。如果"空虚、没意义"持续很久，连原本喜欢的事也提不起劲，那可能不只是迷茫——值得去校心理中心聊聊，这和"不够努力"无关，是情绪在求救。'},
+];
+
+/* 知识库：① 已集中到中心端（单一真相源），学生端只读派生：
+ *  - 拉取中心公开知识库（纯自护内容、非 PII），本地缓存后离线可用；
+ *  - 中心与本地都不可达（file:// 直开）时，回退到内置 CAMPUS_KB。
+ * 关键约束：拉取是「单向 GET 全量」，绝不把任何倾诉原文回传服务器。知识库的唯一可编辑入口在中心端。 */
+const KB_CACHE_KEY = 'shudong_kb_cache';
+let KB_SOURCE = 'builtin';   // center / center-cache / builtin
+let KB = loadKB();
+function loadKB(){
+  try{
+    const c = localStorage.getItem(KB_CACHE_KEY);
+    if(c){ const a = JSON.parse(c); if(Array.isArray(a) && a.length){ KB_SOURCE='center-cache'; return a; } }
+  }catch(e){}
+  KB_SOURCE='builtin';
+  return CAMPUS_KB;
+}
+async function refreshKB(){
+  try{
+    const r = await fetch(apiBase()+'api/kb/resource');   // 无 q → 返回中心全量知识库
+    if(r.ok){
+      const d = await r.json();
+      if(Array.isArray(d.entries) && d.entries.length){
+        KB = d.entries; KB_SOURCE='center';
+        try{ localStorage.setItem(KB_CACHE_KEY, JSON.stringify(d.entries)); }catch(e){}
+        return;
+      }
+    }
+  }catch(e){ /* 离线 / file:// → 保留回退 */ }
+}
+
+/* 通用词黑名单：太宽泛的词不计入检索得分，避免"大学生心理问题有哪些方面"这类概述句误命中 */
+const KB_STOPWORDS = new Set(['心理','大学生','大学','学生','问题','方面','哪些','什么','感觉','情绪','状态','困扰','自己','情况','有点','最近','帮助','建议','支持','健康','常见','咨询','困扰','影响','原因','怎么办','如何','可以','应该','总是','经常']);
+function isSpecificKeyword(k){
+  return typeof k==='string' && k.length>=2 && !KB_STOPWORDS.has(k);
+}
+function effectiveKeywords(e){
+  if(Array.isArray(e.keywords) && e.keywords.length) return e.keywords.filter(isSpecificKeyword);
+  if(typeof e.keywords==='string' && e.keywords.trim()) return e.keywords.split(/[,，|\s、]+/).filter(isSpecificKeyword);
+  // 回退：用标题 + 答案前 40 字做分词，保证注入的 Markdown 也能被检索（同样过滤通用词）
+  const base = (e.title||'') + ' ' + (e.answer||'').slice(0,40);
+  const tokens = base.split(/[\s，,。.、；;：:！!？?“”"']+/).filter(t=>t.length>=2 && !KB_STOPWORDS.has(t));
+  return tokens;
+}
+function searchKB(text){
+  const hits=[];
+  for(const e of KB){
+    let score=0; for(const k of effectiveKeywords(e)){ if(text.includes(k)) score++; }
+    if(score>0) hits.push({e,score});
+  }
+  hits.sort((a,b)=>b.score-a.score);
+  const top = hits.slice(0,3).map(h=>h.e);
+  return top;   // 命中结果供 grounding 注入（system prompt 注入资料 + 分诊路由）
+}
+
+/* 小站分诊：根据首句意图路由到对应 Agent */
+function triage(text){
+  if(searchKB(text).length) return 'zi';
+  // 概述/知识型问题（如"大学生心理问题有哪些方面"）也转小咨
+  if(/心理问题|心理知识|心理咨询|心理健康|有哪些方面|哪些方面|常见的?困扰|常见的?问题/.test(text)) return 'zi';
+  if(/测|量表|我怎么了|什么状态|正常吗|严不严重|筛查|打分|自测/.test(text)) return 'ce';
+  // 咨询意图（想问办法、问原因）→ 小咨
+  if(/咨询|怎么办|咋办|咋整|如何|怎么缓解|怎么调节|怎么改善|为什么|啥原因|什么原因|有没有(什么)?(方法|办法)|给.*(方法|建议)/.test(text)) return 'zi';
+  // 学习压力等校园困扰话题 → 小咨
+  if(/学习压力|压力|学业|挂科|考试|考研|绩点|论文|毕设|失眠|拖延|焦虑|迷茫|就业|实习|内卷|恋爱|对象|父母|家人|家庭|人际|室友|朋友/.test(text)) return 'zi';
+  // 短语接话（如小咨追问后只答"学习压力"四个字）→ 沿用上一个 Agent，不重新分诊
+  if(window._lastAgent && window._lastAgent!=='pei' && text.length<=12 && !/陪|聊天|说说|听我说|随便聊/.test(text)) return window._lastAgent;
+  return 'pei';
+}
+
+/* 小站分诊（主路径）：交给模型判断该谁接，正则 triage 作兜底。
+   返回 {agent, reason}：reason 是模型给出的判定理由，用于转接条展示。
+   这是多 Agent 系统的标准做法——路由本身也是一个轻量推理步骤，
+   不再靠人工堆正则，所以换个说法也不会漏。 */
+const ROUTE_REASON = {pei:'你更想找人说说，归小陪陪伴', zi:'这是具体困扰/想找方法，归小咨', ce:'你想看看自己状态，归小测'};
+async function routeAgent(text){
+  /* 危机优先（2026-09-24 A 案）：只要命中危机词，一律改判小陪（pei）接话。
+     放在最前面，早于「手动指定 / 点名锁定」两条短路分支——否则出现
+     「用户点名了小测（或此前锁定了小测），说一句『我不想活了』却仍被拉起量表」。
+     同时清掉点名锁定，避免这一句之后又被锁回小测。
+     原则：风险信号永远压过功能路由（量表、咨询、陪伴，谁都不许抢）。 */
+  if(scanCrisis(text)){
+    window._pinnedAgent = null;
+    window._lastAgent = 'pei';
+    return {agent:'pei', reason:'这句话我先认真接住', silent:true};
+  }
+  // 手动指定 → 直接走
+  if(currentAgent!=='auto'){ const r=currentAgent; window._lastAgent=r; return {agent:r, reason:''}; }
+  /* 点名优先：用户提到某位伙伴的名字 = 明确指定，锁定 TA；
+     之后每条消息都由 TA 接待，直到用户再点名另一位（如"换小咨"）才解锁换人。
+     兼容同音字：打字选字/语音转写常出「小培/小裴/小资/小策」等，一律视为点名。 */
+  const nameHits=[...text.matchAll(/小(?:陪|培|裴|赔)|小(?:咨|资|姿|滋)|小(?:测|策|侧|册)/g)];
+  if(nameHits.length){
+    const w=nameHits[nameHits.length-1][0];                 // 取最后点名的（兼容"别和小陪聊了，换小咨"）
+    const wanted = /陪|培|裴|赔/.test(w) ? 'pei' : /咨|资|姿|滋/.test(w) ? 'zi' : 'ce';
+    window._pinnedAgent = (window._pinnedAgent===wanted) ? null : wanted;  // 再点一次同一位 = 取消锁定也可
+    window._lastAgent = wanted;
+    return {agent:wanted, reason:'你点名要'+AGENTS[wanted].name+'，直接转接'};
+  }
+  if(window._pinnedAgent){
+    window._lastAgent=window._pinnedAgent;
+    /* silent=true：锁定延续轮不再出转接条——点名那轮已经展示过「直接转接」，
+       之后每轮都弹「继续由TA接待」是重复打扰（2026-09-24 用户反馈）。 */
+    return {agent:window._pinnedAgent, reason:'', silent:true};
+  }
+  try{
+    const model = 'deepseek';
+    // 带上最近几轮对话作为上下文：避免"用户刚点名某伙伴、正在连续倾诉"时被中途换人
+    const ctx = history.slice(-5).map(h=>(h.role==='user'?'用户':'伙伴')+':'+String(h.content).slice(0,60)).join('\n');
+    const hint = window._lastAgent ? ('上一位接话的伙伴是「'+AGENTS[window._lastAgent].name+'」。如果用户这句只是接上一句话的简短补充，就继续用'+window._lastAgent+'；否则按职责重新判断。') : '';
+    const sys = `你是树洞信箱的分诊台「小站」。根据用户这句话和最近对话，判断该由哪位伙伴接待。
+先输出英文名（pei / zi / ce），紧跟一个中文冒号，再写一句不超过 25 字的判定理由。例如：zi：用户提到学习压力，是具体困扰，归小咨。
+- pei（小陪·陪伴）：用户想倾诉、吐槽、碎碎念、表达情绪、找人听他说，或只是想聊天，不涉及具体难题求解。
+- zi（小咨·咨询）：用户想了解心理知识、询问困扰的应对方法/原因/怎么办，或提到学习/考试/压力/人际/焦虑/就业等具体难题。
+- ce（小测·自测）：用户想评估自己的状态、做心理自测、量表、打分、判断自己正不正常。
+分诊铁律：
+1. 用户点名了某位伙伴的名字（含同音字，如小培/小裴=小陪、小资/小姿=小咨、小策/小册=小测）→ 必须选那位，不得自作主张。
+2. 用户正在和某位伙伴连续交流（如刚说"想和小陪聊天"后继续倾诉）→ 除非明确要求换人，否则继续用上一位。
+3. 小陪把节奏交还给 ta、或小陪提到"想找办法可以找小咨"之后，用户接着表达"想看看怎么办／想找方法" → 必须转 zi，别让小陪接着聊。
+${hint}
+只输出如「zi：……」这样的格式，不要多余内容。`;
+    const body={model:model, messages:[{role:'system',content:sys},{role:'user',content:text+'\n[最近对话]\n'+ctx}], stream:false, temperature:0, max_tokens:48};
+    const res=await callLLM(body);
+    if(!res.ok) throw new Error('route '+res.status);
+    const j=await res.json();
+    const ans=(j.choices?.[0]?.message?.content||'').trim();
+    const m=ans.match(/\b(pei|zi|ce)\b/i);
+    const agent = m ? m[1].toLowerCase() : 'pei';
+    let reason = ans.replace(/\b(pei|zi|ce)\b\s*[:：]?/i,'').replace(/^[:：\s]+/,'').slice(0,40).trim();
+    if(!reason) reason = ROUTE_REASON[agent];
+    window._lastAgent=agent; return {agent, reason};
+  }catch(e){
+    const r=triage(text); window._lastAgent=r; return {agent:r, reason:ROUTE_REASON[r]};   // 模型分诊失败 → 正则兜底
+  }
+}
+
+function setAgent(a){
+  currentAgent=a;
+  document.querySelectorAll('#agentBar .agent-chip').forEach(c=>{
+    c.classList.toggle('active', c.dataset.agent===a);
+  });
+  const names={auto:'智能分诊 · 小站',pei:'小陪 · 陪伴',zi:'小咨 · 咨询',ce:'小测 · 自测'};
+  toast('已切换：'+names[a]);
+  if(a==='ce') openQuiz();   // 小测 = 标准化量表自测，选它即开测验面板
+}
+
+/* 本地危机词库（规则优先，零误判代价） */
+/* 危机词表：只认明确指向自身的表达。
+   注意别收「解脱」「没有意义」这类泛词——"考完试就解脱了""学习没有意义"
+   是日常口语/厌学情绪，误判会把危机层砸到普通学生头上，反而让真正的信号贬值。 */
+const CRISIS_WORDS = ['不想活','想死','轻生','自杀','结束生命','活不下去','活着没意思','活着没意义','人生没意义','想解脱','一了百了','结束自己','想消失','厌世','腻了这个世界'];
+/* 躯体化紧张信号：话里直接描述了身体上的紧（呼吸/心跳/胸口/手抖…）。
+   这类表达比情绪标签更硬——一次就该给呼吸法，不必等"连续几轮"（等几轮反而错过当下）。 */
+const BODY_TENSE_RE = /喘(不过|不上|不)气|透不过气|呼吸不上|呼吸(困难|不过来)|(不能|没法|无法)呼吸|上不来气|气上不来|窒息|憋得慌|要憋死了|憋死了|胸闷|胸口(发闷|发紧|发堵|难受)|心跳(很|得)?(快|厉害|重)|心慌|手抖|发抖|腿软|冒冷汗|手脚发麻|眼前发黑|气短/;
+
+/* 需要持续关注的负向情绪 */
+const NEG_MOODS = ['低落','崩溃','焦虑','麻木'];
+
+/* 情绪 → 色卡。色值统一来自 :root 的 --mood-* token，这里只做名字映射，
+   改配色时只改一处（CSS），JS 不用动。 */
+const MOOD_TOKEN = {
+  '平静':'--mood-calm','温暖':'--mood-warm','疲惫':'--mood-tired','焦虑':'--mood-anxious',
+  '低落':'--mood-low','崩溃':'--mood-breakdown','麻木':'--mood-numb','希望':'--mood-hope'
+};
+const MOOD_COLOR = {};
+for(const k in MOOD_TOKEN) MOOD_COLOR[k] = cssVar(MOOD_TOKEN[k], 'oklch(.5 0 0)');
+const MOOD_TEXT = {
+  '平静':'今天还算平稳，挺好的。','温暖':'你心里有光，记得留一点给自己。',
+  '疲惫':'你今天已经很努力了，允许自己歇一歇。','焦虑':'紧张的时候，先深呼吸三次，我在。',
+  '低落':'天阴一阵子没关系，你会再晴起来的。','崩溃':'撑到现在你已经很勇敢了，别急着好起来。',
+  '麻木':'感觉不到也没关系，慢慢来，我陪你。','希望':'看到一点点光，就值得高兴一下。'
+};
+/* 情绪 → 极性分值（-1 最负向，+1 最正向），用于硬分析展示 */
+const MOOD_SCORE = {'崩溃':-0.9,'低落':-0.6,'焦虑':-0.4,'麻木':-0.35,'疲惫':-0.3,'平静':0.0,'温暖':0.4,'希望':0.6};
+const NEG_SET = new Set(NEG_MOODS);
+
+/* 主题关键词（本地画像，零隐私风险）
+   原则：只收「两字以上的强信号词」，不收「花/费/喜欢/不知道」这类高频通用词——
+   它们会用「浪费(时间)」「没有喜欢做的事」这种日常表达误命中经济/恋情/未来。
+   命中 = 该话题 +1（一条消息可命中多个话题）。 */
+const TOPIC_WORDS = {
+  /* v3.1：八类各自补齐「学生真的会这么说」的日常说法。
+     教训：v3 只把「就业」补成独立类，但每类词表仍偏教科书化——
+     学生说「宿舍关系好难处」「感觉格格不入」「融不进他们」时 0 命中，整条不上榜。
+     补词原则不变：只收两字以上强信号词，不收「关系/疼/贵」这类单字或通用词。 */
+  '学业':/考试|学习|上课|课程|课业|作业|论文|成绩|绩点|挂科|考研|保研|毕业|毕设|答辩|老师|学校|导师|开题|文献|选课|复习|预习|补考|重修|学分|期中|期末|转专业|实验报告|课程设计|小组作业|ddl|DDL/,
+  '人际':/(?<![男女])朋友|同学|室友|舍友|同事|人际|宿舍|相处|吵架|争吵|闹矛盾|合不来|格格不入|融不进|插不上话|说不上话|关系僵|处不好|孤独|没人懂|没人理|孤立|被孤立|疏远|排挤|被排挤|不合群|冷落|闹掰|绝交|拉黑|社恐|社交|讨好|边界感|嘴笨/,
+  '家庭':/爸妈|父母|家里|家人|家长|妈妈|爸爸|我妈|我爸|亲戚|原生家庭|回家|奶奶|姥姥|外婆|爷爷|外公|我哥|我姐|我弟|我妹|催婚|逼婚|偏心|重男轻女|全家/,
+  /* 「被拒」曾写成裸词，但「面试被拒了三次」「投简历被拒」都会被算成恋情
+     （2026-09-25 实踩：整段没聊恋情，恋情却记了 3 次）。收紧为必须带恋爱语境。 */
+  '恋情':/对象|男朋友|女朋友|前任|分手|失恋|恋爱|暗恋|单恋|脱单|告白|表白|表白被拒|告白被拒|拒绝我|暧昧|网恋|异地|复合|挽回|劈腿|出轨|冷暴力|忽冷忽热|不回消息|喜欢上|喜欢他|喜欢她|喜欢的人|心动|crush|相亲/,
+  '身体':/失眠|睡不着|睡眠|熬夜|早醒|多梦|头疼|头痛|头晕|生病|身体|健康|胃|胃疼|吃不下|没胃口|疲惫|很累|好累|累坏|没力气|不舒服|心慌|心悸|胸闷|喘不上气|发抖|手抖|月经|姨妈|例假|感冒|发烧|吃药|去医院|体检|瘦了|胖了|长痘|掉头发|脱发/,
+  '经济':/花钱|消费|开销|开支|没钱|缺钱|钱不够|手头紧|借钱|还钱|欠钱|欠款|攒钱|省钱|吃土|月光|穷|工资|薪水|生活费|学费|兼职|打工|赚钱|赚不到|经济|房租|负债|贷款|网贷|花呗|信用卡|奖学金|助学金|补助|账单|太贵|买不起|付不起|负担不起|交不起/,
+  /* 「就业」独立成类，与中心端白名单（server/db.js TOPICS）严格对齐成 8 类。
+     原先把求职类说法并进「未来」，导致「投简历/面试/offer」这些最常见说法
+     一个词都不命中 → 话题为空 → 学生端不上榜、中心端也收不到。 */
+  '就业':/简历|面试|笔试|投递|offer|招聘|秋招|春招|校招|社招|内推|宣讲会|双选会|三方|岗位|求职|找工作|工作|就业|入职|实习|试用期|转正|职场|跳槽|辞职|离职|裸辞|裁员|被裁|失业|加班|老板|上司|KPI|大厂|国企|考公|考编|公务员|事业编|上岸|编制/,
+  /* 「未来」只留真正的「生涯方向感」说法。原先混进 焦虑|压力|人生，
+     任何一句带「压力」的话都会被算成「未来」（如「工作压力好大」），属误命中。 */
+  '未来':/迷茫|未来|前途|出路|方向|规划|毕业以后|以后做什么|想做什么|该做什么|以后怎么办|将来|没有目标|走一步看一步/
+};
+
+/* ---------------- 持久化 ---------------- */
+const MOOD_LOG_KEY = 'shudong_moodlog';     // [{date, mood, ts}]
+const TOPIC_LOG_KEY = 'shudong_topics';      // {学业:3, 人际:1, ...}
+let careShown = false;                        // 本次会话是否已做连续关怀提示
+window._pinnedAgent = null;                   // 用户点名锁定的 Agent（pei/zi/ce），再点名换人才解锁
+
+/* 一次性数据清障：早期版本有"载入演示数据"功能，会往 localStorage 写 42 条假记录。
+   演示功能已删除，这里按数据版本号把旧数据清掉——此后所有心声/话题
+   只能从「倾诉」页的真实对话里长出来（pushMood/pushTopic）。 */
+const DATA_VER_KEY = 'shudong_dataver';
+const DATA_VER = '5';   /* v5 = 追加清空「上次自测结果」（shudong_last_assess 此前漏在清障列表外，重部署后仍显示旧记录）；其余同 v4 */
+/* 构建ID：部署流水线（copy_clean.js）在打包时把占位串替换为构建时间戳。
+   浏览器发现 BUILD_ID 变化即自动清一次本机数据 → 每次重部署学生端自动清空，
+   不再依赖手动 bump DATA_VER。本地直开文件时占位串不变，只在首次执行一次清障。 */
+const BUILD_ID = '__BUILD_ID__';
+const BUILD_KEY = 'shudong_build';
+(function purgeLegacyData(){
+  try{
+    if(localStorage.getItem(DATA_VER_KEY) === DATA_VER && localStorage.getItem(BUILD_KEY) === BUILD_ID) return;
+    localStorage.removeItem(MOOD_LOG_KEY);
+    localStorage.removeItem(TOPIC_LOG_KEY);
+    /* v4 修复：此前开机清障漏掉了信件总数/未来信/匿名身份，导致重部署后
+       首页仍显示旧版残留的「攒下 N 封」。此处用字符串字面量（这些 key 的
+       常量定义在文件更靠后的位置，提前引用会触发 TDZ 报错）。 */
+    localStorage.removeItem('shudong_letter_count');
+    localStorage.removeItem('shudong_future_letters');
+    localStorage.removeItem('shudong_anon');
+    localStorage.removeItem('shudong_breath_at');
+    localStorage.removeItem('shudong_care_at');
+    localStorage.removeItem('shudong_last_assess');   /* v5：上次自测结果（此前漏掉，导致重部署后仍显示「你上次于 X 测过」） */
+    localStorage.setItem(DATA_VER_KEY, DATA_VER);
+    localStorage.setItem(BUILD_KEY, BUILD_ID);
+  }catch(e){}
+})();
+
+/* 话题词表版本：v2 起收紧关键词（不再用「花/费/喜欢」这类通用词误命中）。
+   v3 新增第 8 类「就业」、与中心端白名单严格对齐，并收窄「未来」。
+   词表一变，旧计数就不可比——只清话题计数，保留心情记录（moodLog 是真实对话产物）。 */
+const TOPIC_VER_KEY = 'shudong_topicver';
+const TOPIC_VER = '3';
+(function purgeLegacyTopics(){
+  try{
+    if(localStorage.getItem(TOPIC_VER_KEY) === TOPIC_VER) return;
+    localStorage.removeItem(TOPIC_LOG_KEY);
+    localStorage.setItem(TOPIC_VER_KEY, TOPIC_VER);
+  }catch(e){}
+})();
+
+function loadMoodLog(){ try{ return JSON.parse(localStorage.getItem(MOOD_LOG_KEY))||[]; }catch(e){ return []; } }
+function loadTopics(){ try{ return JSON.parse(localStorage.getItem(TOPIC_LOG_KEY))||{}; }catch(e){ return {}; } }
+
+function pushMood(mood){
+  const log = loadMoodLog();
+  /* 日期一律用本地日期（localDateStr）：toISOString 是 UTC，东八区 00:00–08:00 会记成前一天 */
+  log.push({date: localDateStr(new Date()), mood, ts: Date.now()});
+  localStorage.setItem(MOOD_LOG_KEY, JSON.stringify(log.slice(-800)));
+}
+/* 口径（2026-09-25 三次定稿）：**只有本条发言命中了关键词才 +1**，
+   未命中的发言一律不计（寒暄、危机表述、纯情绪发泄）。
+   曾加过「话题延续」——未命中就记到会话锚点名下，结果是「面试被拒了三次」
+   这种无关句把整段话题带偏（恋情被凭空记 3 次），2026-09-25 已废止。
+   一条可同时命中多个话题，则各 +1。 */
+function pushTopic(text){
+  const topics = loadTopics();
+  for(const [k,re] of Object.entries(TOPIC_WORDS)){
+    if(re.test(text)) topics[k] = (topics[k]||0)+1;
+  }
+  localStorage.setItem(TOPIC_LOG_KEY, JSON.stringify(topics));
+}
+
+/* ---------------- 状态 ---------------- */
+let history = [];          // [{role,content}]
+let sessionMoods = [];     // 本次情绪记录
+let currentAgent = 'auto'; // auto=小站分诊；pei/zi/ce=指定 Agent
+let tenseStreak = 0;         // 连续「身体发紧」类情绪（焦虑/崩溃）轮数，用于呼吸提议门槛
+/* 冷却键：呼吸提议 / 持续低落关怀，跨会话限频，避免每次打开都被提一遍 */
+const BREATH_AT_KEY = 'shudong_breath_at';
+const CARE_AT_KEY   = 'shudong_care_at';
+function cooled(key, gapMs){
+  try{ return Date.now() - (Number(localStorage.getItem(key)) || 0) >= gapMs; }catch(e){ return true; }
+}
+function markCooled(key){ try{ localStorage.setItem(key, String(Date.now())); }catch(e){} }
+
+/* ---------------- 工具 ---------------- */
+const $ = id => document.getElementById(id);
+/* 图标分两套，按「是不是聊天流里的表达性元素」划线：
+   - iconSvg   → 界面控件（导航 / 标签 / 工具条 / 按钮 / 麦克风），走页面顶部的 svg sprite，
+                 同一套笔画、跟随 currentColor 变色，选中态由 .active 的 stroke-width 继承加粗
+   - iconEmoji → 聊天流里的头像、伙伴、关怀卡，保留 emoji 的亲切感 */
+const ICON_EMOJI = {
+  leaf:'🌿', chat:'💬', calendar:'📅', chart:'📊', user:'🧑',
+  settings:'⚙️', mic:'🎤', stop:'⏹️', trash:'🗑️', breath:'🌬️',
+  flag:'🏁', spark:'✨', refresh:'🔄', shield:'🛡️', route:'🧭',
+  arrow:'➡️', heart:'💗', book:'📖', clip:'📋'
+};
+function iconSvg(name){
+  /* 只认 sprite 里真实存在的 symbol，避免 <use> 指向空 id 渲染成一片空白 */
+  const key = Object.prototype.hasOwnProperty.call(ICON_EMOJI, name) ? name : 'leaf';
+  return '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-'+key+'"/></svg></span>';
+}
+function iconEmoji(name){ return '<span class="ic" aria-hidden="true">'+(ICON_EMOJI[name]||'')+'</span>'; }
+/* 取 :root 里的设计 token（配色只写在 CSS 里，JS 读出来用，避免同一色值抄两遍） */
+function cssVar(name, fallback){
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,180)+'px';}
+function scrollChat(){const c=$('chat');c.scrollTop=c.scrollHeight;}
+
+function showView(name){
+  ['chat','calendar','insight','profile'].forEach(v=>{
+    $('view-'+v).classList.toggle('active', v===name);
+    $('tab-'+v).classList.toggle('active', v===name);
+    const nav=$('nav-'+v); if(nav) nav.classList.toggle('active', v===name);
+  });
+  if(name==='calendar') renderCalendar();
+  if(name==='insight'){ renderInsight(); checkBackend(); }
+  if(name==='profile') renderProfile();
+  updateChatDot();   /* 回到「倾诉」就把未查收的小红点收掉 */
+  try{ localStorage.setItem('shudong_view', name); }catch(e){}
+}
+
+function addMsg(role,text,agent){
+  const wrap=document.createElement('div');
+  wrap.className='msg '+role;
+  const body=document.createElement('div'); body.className='msg-body';
+  const ava=document.createElement('div'); ava.className='ava';
+  ava.innerHTML = iconEmoji(role==='user' ? 'user' : (AGENTS[agent] ? AGENTS[agent].icon : 'leaf'));
+  if(role==='bot' && agent && AGENTS[agent]){
+    const tag=document.createElement('div'); tag.className='agent-tag';
+    const tn=document.createElement('span'); tn.textContent=AGENTS[agent].name+' 说';
+    tag.appendChild(tn); body.appendChild(tag);
+  }
+  const bub=document.createElement('div'); bub.className='bubble'; bub.textContent=text;
+  body.appendChild(bub);
+  wrap.appendChild(ava); wrap.appendChild(body);
+  $('chat').appendChild(wrap); scrollChat();
+  return bub;
+}
+/* 系统条：care=true 时是「有人守着你」的关怀卡（小安），可带图标与说话人标签 */
+function addSys(text, care, icon, label){
+  const d=document.createElement('div'); d.className='sys'+(care?' care':'');
+  if(icon){ const s=document.createElement('span'); s.className='sys-ic'; s.innerHTML=iconEmoji(icon); d.appendChild(s); }
+  const box=document.createElement('div');
+  if(label){ const l=document.createElement('b'); l.className='sys-label'; l.textContent=label; box.appendChild(l); }
+  const t=document.createElement('span'); t.textContent=text; box.appendChild(t);
+  d.appendChild(box);
+  $('chat').appendChild(d); scrollChat();
+}
+/* 小站分诊的转接条：谁把话交给了谁，一句话说清 */
+function addHandoff(agent, reason){
+  const a = AGENTS[agent] || AGENTS.pei;
+  const d=document.createElement('div'); d.className='handoff'; d.dataset.odId='handoff-'+agent;
+  const mk=(cls,icon)=>{ const s=document.createElement('span'); s.className=cls; if(icon) s.innerHTML=iconEmoji(icon); return s; };
+  const src=mk('ho-src'); src.textContent='小站分诊';
+  const dst=mk('ho-dst', a.icon);
+  const nm=document.createElement('b'); nm.textContent=a.name; dst.appendChild(nm);
+  const dsc=document.createElement('i'); dsc.textContent=agentDesc[agent]||''; dst.appendChild(dsc);
+  const why=mk('ho-why'); why.textContent=reason||'';
+  d.append(mk('ho-ic','route'), src, mk('ho-arrow','arrow'), dst, why);
+  $('chat').appendChild(d); scrollChat();
+}
+function addMood(mood){
+  if(!MOOD_COLOR[mood]) return;
+  const score = MOOD_SCORE[mood];
+  const sign = score>0?'+':'';
+  const bar=document.createElement('div'); bar.className='moodbar';
+  bar.innerHTML=`<span>此刻心情</span><span class="mood-dot" style="background:${MOOD_COLOR[mood]}"></span><span>${mood} <b>强度 ${sign}${score.toFixed(2)}</b></span>`;
+  $('chat').appendChild(bar); scrollChat();
+}
+
+/* ---------------- 危机检测（小安旁路 + 小源转介） ---------------- */
+function scanCrisis(text){ return CRISIS_WORDS.some(w=>text.includes(w)); }
+function maybeCrisis(text){
+  if($('crisisMask').classList.contains('show')) return;
+  if(scanCrisis(text)){ $('crisisMask').classList.add('show'); }
+}
+function closeCrisis(){$('crisisMask').classList.remove('show');}
+
+/* ---------------- 持续低落关怀（小安·技术深度点） ----------------
+   口径：按「天」判断，不按「条数」判断。
+   原因：每聊一轮就存一条记录，原来取「最近 5 条」等于只看刚才这几轮，
+   却说着「最近几次聊下来」——几乎每场对话都会触发，既不准也是打扰。
+   现在要求：最近 7 天里至少 3 天「这一天不太好过」，且负向得跨天出现。
+   分两档——只有出现崩溃/麻木这类重信号才抛热线号码，其余只给陪伴。 */
+function checkPersistentLow(){
+  if(careShown) return;
+  const log = loadMoodLog();
+  if(!log.length) return;
+
+  // 按天聚合：一天里负向占一半以上，这一天才算「不太好过」
+  const byDay = {};
+  log.forEach(x=>{
+    const d = byDay[x.date] || (byDay[x.date] = { total:0, neg:0, severe:false });
+    d.total++;
+    if(NEG_MOODS.includes(x.mood)) d.neg++;
+    if(x.mood==='崩溃' || x.mood==='麻木') d.severe = true;
+  });
+  const days = Object.keys(byDay).sort().slice(-7);
+  if(days.length < 3) return;                                  // 记录不足 3 天，不下任何判断
+  const rough = days.filter(d => byDay[d].neg*2 >= byDay[d].total);
+  if(rough.length < 3) return;                                 // 至少 3 天不太好过，才算「持续」
+  const severe = rough.filter(d => byDay[d].severe).length >= 2;  // 崩溃/麻木跨 2 天，才升级到热线
+
+  if(!cooled(CARE_AT_KEY, severe ? 864e5 : 3*864e5)) return;  // 重档冷却 1 天，轻档冷却 3 天
+  careShown = true; markCooled(CARE_AT_KEY);
+
+  if(severe){
+    addSys('最近几次聊下来，你似乎都不太轻松。你不需要一个人硬扛——如果愿意，可以拨打全国心理援助热线 12356，或联系学校心理中心。我也会一直在这里陪你。', true, 'shield', '小安守护');
+  }else{
+    // 只是持续有点闷：先陪伴、先听着，不急着抛热线号码
+    addSys('这几天你好像一直不太轻松。不用急着好起来，也不用一个人消化——我会一直在这儿听你说。如果这种状态拖得久了，学校心理中心也随时愿意陪你聊聊。', true, 'shield', '小安守护');
+  }
+}
+
+/* ---------------- 情绪解析 ---------------- */
+function parseMood(text){
+  const m = text.match(/【心情[:：]\s*([\u4e00-\u9fa5]+)\s*】/);
+  if(m && MOOD_COLOR[m[1]]) return m[1];
+  return localMood(text);
+}
+
+/* 本地心情推断（无 Key / 模型失败时的兜底，关键词映射） */
+function localMood(text){
+  if(/不想活|轻生|活不下去|消失|自杀/.test(text)) return '崩溃';
+  if(/累|倦|疲惫|撑不住|困|乏/.test(text)) return '疲惫';
+  if(/怕|慌|焦虑|紧张|担心|不安|失眠|揪/.test(text)) return '焦虑';
+  if(/没意思|空虚|麻木|空荡荡|绝望/.test(text)) return '麻木';
+  if(/失败|挫败|搞砸|没做成|白费|失望|低落|难过|哭|伤心|遗憾|丧/.test(text)) return '低落';
+  if(/谢谢|好一点|暖|开心|高兴|轻松|希望|舒服/.test(text)) return '希望';
+  return '平静';
+}
+
+/* 后台心情推断：不污染对话流（prompt 已不再要求模型吐标记）。
+   有 Key 时用一次极轻量调用让模型只回标签；无 Key 时本地关键词映射。 */
+async function inferMood(userText, botText){
+  const ctx = (userText+' '+botText).slice(-240);
+  try{
+    const model = 'deepseek';
+    const sys = `你是情绪标注员。根据这段对话判断用户此刻的心情，只回复一个词，必须从：平静/温暖/疲惫/焦虑/低落/崩溃/麻木/希望 中选一个。不要任何解释、不要标点。`;
+    const body={model:model, messages:[{role:'system',content:sys},{role:'user',content:ctx}], stream:false, temperature:0, max_tokens:4};
+    const res=await callLLM(body);
+    if(!res.ok) return localMood(ctx);
+    const j=await res.json();
+    const ans=(j.choices?.[0]?.message?.content||'').trim();
+    return MOOD_COLOR[ans] ? ans : localMood(ctx);
+  }catch(e){ return localMood(ctx); }
+}
+
+/* ---------------- AI 调用（多 Agent 路由 + 小咨 RAG） ---------------- */
+/* 记忆锚点：把用户之前提过的事塞进 system，让 Agent 表现出"记得"，而非每次都像初见 */
+function buildMemo(){
+  const prev = history.filter(m=>m.role==='user').slice(0,-1).map(m=>m.content).filter(Boolean);
+  if(prev.length===0) return '';
+  const joined = prev.slice(-4).map(s=>'· '+s.slice(0,26)).join('\n');
+  return '\n\n【你之前听 ta 说过这些，聊到相关话题时自然接住、表现出你记得，别生硬重复】\n'+joined;
+}
+
+/* ---------------- 跨 Agent 上下文隔离（2026-09-26） ----------------
+   原来 history 里每条 bot 轮不带 agent 标记，装配 messages 时一律当 assistant 发出去。
+   后果：小咨接手时，小陪说过的话会以「小咨自己说过」的身份进上下文——模型接着用小陪的口吻，
+   甚至把「小咨」当成第三方，说出"你去找小咨"（小咨推给小咨）。
+   按截图场景重建实测（deepseek-chat，8 次）：自指 1/8、撇清 1/8；隔离后 0/8、0/8。
+   现在：只有自己说过的话才是 assistant；别家伙伴的话收进 system，明确标注「不是你说的」。 */
+function buildChatTurns(agent){
+  const turns=[], others=[];
+  for(const m of history){
+    if(m.role==='user'){ turns.push({role:'user',content:m.content}); continue; }
+    // 老记录没有 agent 标记时按「不是自己说的」处理更安全（宁可不认，也别认错）
+    const who = m.agent || 'pei';
+    if(who===agent) turns.push({role:'assistant',content:m.content});
+    else others.push({who, content:m.content});
+  }
+  return {turns, others};
+}
+function agentName(a){ return (AGENTS[a]||{name:'伙伴'}).name; }
+function buildHandoffNote(agent, others){
+  if(!others.length) return '';
+  const last = others[others.length-1];
+  const me = agentName(agent), prev = agentName(last.who);
+  return '\n\n【背景·这些话不是你（'+me+'）说的】'
+    + '学生在你之前是和「'+prev+'」聊的。下面是「'+prev+'」的原话——那是**另一位伙伴**说的话，'
+    + '不是你的话，别沿用那个口吻，更别跟着把自己叫作"那边""'+me+'那儿"。\n'
+    + others.map(o=>'· '+agentName(o.who)+'：'+o.content).join('\n')
+    + '\n现在由你（'+me+'）接手，回答学生的最后一句。';
+}
+
+async function callAI(agent){
+  const model = 'deepseek';
+  const lastUser = history[history.length-1]?.content || '';
+  const ag = AGENTS[agent] || AGENTS.pei;
+
+  let system = ag.prompt + buildMemo();
+  const chatCtx = buildChatTurns(agent);
+  system += buildHandoffNote(agent, chatCtx.others);
+  if(agent==='zi'){
+    // 知识库身份说明：无论本次是否命中具体条目，被问「有没有参考来源/知识库」时统一回答建立在预设知识库上
+    system += '\n\n【知识库说明】你的回答建立在心理中心预设的校园心理知识库之上（由心理中心老师整理的大学生心理支持资料，涵盖学业压力、人际与关系、情绪管理、自我成长、生涯发展、身心健康等方面）。当用户问「你的回答有没有参考资料/知识库/依据」这类问题时，必须用第一人称回答：「我的回答建立在心理中心预设的心理知识库之上，这个知识库包含心理咨询和心理健康的基本信息，是基于心理学理论和实践经验的总结。」注意：话术以「我」开头、指你自己（小咨），绝不要把用户问句里的「你的回答」原样复述成开头，也不要说「你的回答建立在……」。不要说「没有参考特定资料」「凭一般知识回答」之类的话，也不要主动承诺去查找文献。';
+    const kb = searchKB(lastUser);
+    if(kb.length){
+      // 引用溯源 + Grounding：条目标号，并约束「仅依据资料、无依据直说不知道」（参照 DeepSeek Harness 知识库机制）
+      system += '\n\n【可参考的校园心理资料（知识库）】\n' + kb.map((x,i)=>'['+(i+1)+'] '+x.title+'：'+x.answer).join('\n')
+        + '\n严格遵守：只能依据上述资料回答；若资料中找不到相关依据，就坦诚告诉用户「这方面我了解有限，建议你联系学校心理中心或拨打心理援助热线」，不要编造内容。'
+        + '不要照搬原文，用你自己的话温和地讲；不要做诊断、不要承诺疗效。若用户问的是笼统概述性问题（如"心理问题有哪些方面"），直接回答本身，不必套用某条资料。';
+    }
+  }
+
+  const body = {
+    model: model,
+    messages: [
+      {role:'system',content:system},
+      ...chatCtx.turns
+    ],
+    stream: true,
+    temperature: 0.9
+  };
+  try{
+    const res = await callLLM(body);
+    if(!res.ok){
+      const errBody = await res.text().catch(()=>'');
+      return {ok:false, error:`服务器返回 ${res.status}：${errBody.slice(0,160)}`, fallback: localComfort(lastUser, agent), agent};
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf='', full='';
+    while(true){
+      const {done,value}=await reader.read();
+      if(done) break;
+      buf += decoder.decode(value,{stream:true});
+      const lines = buf.split('\n'); buf = lines.pop();
+      for(const line of lines){
+        const t=line.trim();
+        if(t.startsWith('data:')){
+          const data=t.slice(5).trim();
+          if(data==='[DONE]') continue;
+          try{
+            const j=JSON.parse(data);
+            const delta=j.choices?.[0]?.delta?.content||'';
+            if(delta){ full+=delta; onToken(delta); }
+          }catch(e){}
+        }
+      }
+    }
+    return {ok:true, text: full, agent};
+  }catch(e){
+    const msg = e.message || String(e);
+    const isCORS = msg.includes('Failed to fetch') || msg.includes('NetworkError');
+    return {ok:false, error: isCORS ? '网络/CORS 错误，请检查 Key、网络或模型可用性' : msg, fallback: localComfort(lastUser, agent), agent, isNetwork:true};
+  }
+}
+
+/* 排版收敛（2026-09-26）：气泡是 white-space:pre-wrap，模型输出里的 "\n\n"
+   会原样变成视觉空行。小陪走微信式短句（压到零换行）；小咨、小测必须保留换行——
+   小咨第 4 阶那 1-2 条步骤式小步骤是靠换行分条的，压了就糊成一坨。 */
+function squeezeChatText(text, agent){
+  let t = String(text==null?'':text).replace(/【心情[:：][\u4e00-\u9fa5]+】/,'');
+  if(agent==='pei'){                                   // 小陪：微信式短句，一口气说完，零换行零空行
+    return t
+      .replace(/\r\n?/g,'\n')
+      .replace(/\n+/g,' ')                            // 连续换行压成一个空格：空行归零
+      .replace(/\s+(?=[，。！？；：、）】])/g,'')        // 中文标点前不留空格
+      .replace(/([，。！？；：、（【])\s+/g,'$1')        // 中文标点后不留空格
+      .replace(/\s{2,}/g,' ')
+      .trim();
+  }
+  if(agent==='zi'){                                    // 小咨：第 4 阶步骤分条靠单换行，只收连续空行，保留段落呼吸
+    return t
+      .replace(/\r\n?/g,'\n')
+      .replace(/\n{2,}/g,'\n')
+      .trim();
+  }
+  return t.trim();                                     // 其余（小测）原样输出
+}
+
+let tokenTimer=null;
+function onToken(delta){
+  if(!window._bub){ window._bub = addMsg('bot','',window._agent); }
+  window._full = (window._full||'')+delta;
+  window._bub.textContent = squeezeChatText(window._full, window._agent);
+}
+
+function localComfort(userText, agent){
+  agent = agent || 'pei';
+  if(scanCrisis(userText)){
+    setTimeout(()=>{ if(!$('crisisMask').classList.contains('show')) $('crisisMask').classList.add('show'); },300);
+    return '我有点担心你。你刚才说的，让我很在意。请记得：全国心理援助热线 12356，24 小时都在。你值得被好好对待。';
+  }
+  const isIdentity = /你能做什么|你能干什么|你是谁|你叫什么|介绍下?自己|有什么功能|会什么/.test(userText);
+  if(agent==='zi'){
+    // 小咨本地模式：直接检索知识库作答
+    // 元问题：被问「有没有参考来源/知识库」时统一口径（与 callAI 的知识库说明一致）
+    if(/参考(资料|来源)|知识库|有没有依据|什么依据|资料来(源|自)|数据(库)?支(撑|持)/.test(userText)) return '我的回答建立在心理中心预设的心理知识库之上，这个知识库包含心理咨询和心理健康的基本信息，是基于心理学理论和实践经验的总结。如果你有具体想聊的，比如"考试焦虑怎么缓解""和室友闹矛盾怎么开口"，可以直接问我。';
+    const kb = searchKB(userText);
+    if(isIdentity) return '我是小咨呀，管"想不通"的。像"考试焦虑怎么缓解""和室友闹矛盾怎么开口""就业迷茫怎么办"这类问题，都可以直接丢给我，我给你讲讲方法和原理。';
+    if(kb.length){
+      const e = kb[0];
+      return '关于「'+e.title+'」，我的建议是：'+ (e.answer||'');
+    }
+    return '这个问题有点宽啦，你可以问得具体一点，比如"考试前特别慌怎么办""总失眠怎么调整"，我给你讲讲具体的方法。';
+  }
+  if(agent==='ce'){
+    // 小测本地模式：直接拉起标准化量表自测（与线上 Key 无关，无 Key 也能跑）
+    if(!$('quizMask').classList.contains('show')) openQuiz();
+    return '我帮你打开标准化心理自测啦（PHQ-9 + GAD-7，共 16 题），做完我们一起看看～';
+  }
+  // 小陪：只倾听
+  if(isIdentity) return '我就是听你说话的呀。你随便说，说什么都行，我听着呢。想问点有方法的，可以找小咨；想看看自己最近状态，可以找小测。';
+  const lines = [
+    '我在听呢。能把心里话写出来，其实也挺不容易的。',
+    '我都记着啦，别急着好起来，慢慢来就好。',
+    '今天真的好难啊。但你撑到现在了，已经很厉害了。',
+    '我帮不上什么忙，但这一刻，你不是一个人。'
+  ];
+  return lines[Math.floor(Math.random()*lines.length)];
+}
+
+/* ============ 小测：PHQ-9 + GAD-7 标准化量表自测 ============
+   设计依据：MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025, MIT License）采用同构四级分级；
+   题目为公开心理工具（PHQ-9 / GAD-7 标准量表），无版权。
+   关键：前端计分，无 API Key 也能完整跑完；结果仅分级脱敏上报中心端。 */
+const PHQ9_Q = [
+  '做事时提不起劲或没有兴趣',
+  '感到心情低落、沮丧或绝望',
+  '入睡困难、睡不安稳或睡眠过多',
+  '感觉疲倦或没有活力',
+  '食欲不振或吃太多',
+  '觉得自己很糟，或觉得自己很失败，或让家人失望',
+  '对事情专注有困难（如看书 / 看电视时）',
+  '行动 / 说话变慢到别人察觉，或比平时更烦躁、坐立不安',
+  '有不如死掉或用某种方式伤害自己的念头'   // 第 9 题：自杀意念，特殊处置
+];
+const GAD7_Q = [
+  '感到紧张、焦虑或急切',
+  '不能停止或控制担忧',
+  '对各种各样的事情担忧过多',
+  '很难放松下来',
+  '由于不安而无法静坐',
+  '变得容易烦恼或急躁',
+  '感到似乎将有可怕的事发生而害怕'
+];
+const SCALE_OPTS = ['完全不会', '好几天', '一半以上天数', '几乎每天'];
+const ASSESS_LEVELS = ['Normal', 'Mild', 'Moderate', 'Severe'];
+const LEVEL_CN = { Normal:'状态平稳', Mild:'轻度困扰', Moderate:'中度困扰', Severe:'明显困扰' };
+// 分级阈值（临床标准 cutoff，与 MMPsy 四级命名同构）：Normal / Mild / Moderate / Severe
+function levelOf(scale, score){
+  const cut = [[15,'Severe'], [10,'Moderate'], [5,'Mild']];
+  for(const [thr, lv] of cut){ if(score>=thr) return lv; }
+  return 'Normal';
+}
+// 16 题顺序：先 PHQ-9（9）后 GAD-7（7）；第 9 题（index 8）标记 isQ9
+const QUIZ = [
+  ...PHQ9_Q.map((q,i)=>({scale:'PHQ9', n:i+1, q, isQ9:i===8})),
+  ...GAD7_Q.map((q,i)=>({scale:'GAD7', n:i+1, q}))
+];
+let quizState = null;
+function openQuiz(){
+  quizState = { idx:0, phq:[], gad:[], q9:0, q9flag:0 };
+  const m=$('quizMask'); if(m) m.classList.add('show');
+  quizIntro();
+}
+function closeQuiz(){ const m=$('quizMask'); if(m) m.classList.remove('show'); }
+/* 结果页无关闭按钮：点弹层外部（遮罩本体）关闭；仅在结果生成后生效，答题中误触不退出 */
+(function(){
+  const m = $('quizMask');
+  if(m) m.addEventListener('click', e=>{ if(e.target===m && quizState && quizState.done) closeQuiz(); });
+})();
+function quizIntro(){
+  let lastHint = '';
+  try{
+    const last = JSON.parse(localStorage.getItem('shudong_last_assess')||'null');
+    if(last) lastHint = `<p class="quiz-last">你上次于 <b>${last.date}</b> 测过：整体 ${LEVEL_CN[last.level]}${last.q9Flag?'（含需关注的念头）':''}。本次只凭当下感受即可，无需和上次比较。</p>`;
+  }catch(_){}
+  $('quizBody').innerHTML = `
+    <div class="quiz-head">📋 标准化心理自测</div>
+    <div class="quiz-sub">PHQ-9（抑郁）+ GAD-7（焦虑）· 共 16 题 · 约 2 分钟 · 匿名 · 非诊断</div>
+    ${lastHint}
+    <p class="quiz-desc">「过去两周，你被以下问题困扰的频率？」每题选一个最符合的选项。没有对错，凭第一感觉就好。</p>
+    <p class="quiz-disc">本自测基于 PHQ-9 / GAD-7 标准量表，仅作心理健康筛查参考，<b>不构成医学诊断</b>。如需帮助，请拨打全国心理援助热线 <b>12356</b> 或联系校心理中心。</p>
+    <div class="btnrow"><button type="button" class="primary-btn" onclick="quizStart()">开始自测</button>
+    <button type="button" class="cancel-btn" onclick="closeQuiz()">稍后再说</button></div>`;
+}
+function quizStart(){ quizState.idx=0; renderQuiz(); }
+function renderQuiz(){
+  const it = QUIZ[quizState.idx];
+  const total = QUIZ.length;
+  const opts = SCALE_OPTS.map((o,i)=>`<button type="button" class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`).join('');
+  $('quizBody').innerHTML = `
+    <div class="quiz-prog">第 ${quizState.idx+1} / ${total} 题 · ${it.scale==='PHQ9'?'PHQ-9 抑郁':'GAD-7 焦虑'}</div>
+    <div class="quiz-q">${it.q}</div>
+    <div class="quiz-opts">${opts}</div>
+    <div class="quiz-back"><button type="button" class="quiz-exit" onclick="closeQuiz()">退出自测</button></div>`;
+}
+function answerQuiz(score){
+  const it = QUIZ[quizState.idx];
+  if(it.scale==='PHQ9'){
+    quizState.phq[it.n-1]=score;
+    if(it.isQ9 && score>0){ quizState.q9=score; quizState.q9flag=1; }
+  } else {
+    quizState.gad[it.n-1]=score;
+  }
+  // Q9 阳性：立即弹危机层（强制），用户关闭后继续作答
+  if(it.isQ9 && score>0){
+    const cm=$('crisisMask'); if(cm && !cm.classList.contains('show')) cm.classList.add('show');
+  }
+  quizState.idx++;
+  if(quizState.idx>=QUIZ.length) finishQuiz();
+  else renderQuiz();
+}
+async function finishQuiz(){
+  const phqScore = quizState.phq.reduce((a,b)=>a+(b||0),0);
+  const gadScore = quizState.gad.reduce((a,b)=>a+(b||0),0);
+  const phqLevel = levelOf('PHQ9', phqScore);
+  const gadLevel = levelOf('GAD7', gadScore);
+  const level = ASSESS_LEVELS[Math.max(ASSESS_LEVELS.indexOf(phqLevel), ASSESS_LEVELS.indexOf(gadLevel))];
+  const q9 = quizState.q9flag;
+  quizState.done = true;   /* 结果已生成：允许点弹层外部关闭 */
+  // 自测结果默认只留给学生自己（不上传）；仅当学生主动勾选同意并提交留联时，本次结果才匿名同步心理中心
+  const escalate = (level==='Moderate' || level==='Severe' || q9);
+  if(escalate){
+    pendingAssess = { phq9:{score:phqScore, level:phqLevel, q9:quizState.q9}, gad7:{score:gadScore, level:gadLevel}, level, q9Flag:q9 };
+  }
+  // 本机留存最近一次结果（仅分级摘要，不含任何原文），便于学生回看自己的变化（无论是否同步均留存）
+  try{ localStorage.setItem('shudong_last_assess', JSON.stringify({ date:localDateStr(new Date()), phq9:{score:phqScore, level:phqLevel}, gad7:{score:gadScore, level:gadLevel}, level, q9Flag:q9 })); }catch(_){}
+  let guidance = '';
+  if(level==='Normal') guidance = '目前看起来整体平稳。保持对自己多一点留意和照顾，就很棒了。';
+  else if(level==='Mild') guidance = '最近有一些轻度困扰，很常见。试着把睡好、动一动、找人聊聊排进日常；若持续两周以上，可以考虑去校心理中心坐坐。';
+  else if(level==='Moderate') guidance = '最近困扰到了中等程度，建议联系校心理中心或拨打 12356 聊聊，专业的陪伴会轻松一些。';
+  else guidance = '最近的状态值得认真对待。请记得全国心理援助热线 12356（24 小时），或尽快联系校心理中心 / 辅导员。';
+  if(q9) guidance = '你刚才提到的那个念头，让我很在意。请记得你值得被好好对待——全国心理援助热线 12356（24 小时）随时都在。' + guidance;
+  $('quizBody').innerHTML = `
+    <div class="quiz-head">自测结果 · ${LEVEL_CN[level]}</div>
+    <div class="quiz-scores">
+      <div class="qs"><span>PHQ-9 抑郁</span><b>${phqScore} / 27</b><i class="${phqLevel==='Severe'?'sev':''}">${LEVEL_CN[phqLevel]}</i></div>
+      <div class="qs"><span>GAD-7 焦虑</span><b>${gadScore} / 21</b><i class="${gadLevel==='Severe'?'sev':''}">${LEVEL_CN[gadLevel]}</i></div>
+    </div>
+    <p class="quiz-disc">这不是诊断，只是我们一起看到的。分级参考 PHQ-9 / GAD-7 标准量表。</p>
+    <p class="quiz-guid">${guidance}</p>
+    <p class="quiz-disc">量表分级参考 MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025, MIT License）。</p>
+    ${escalate?`
+    <div class="quiz-contact" id="quizContact">
+      <div class="qc-title">需要心理老师主动联系你吗？</div>
+      <p class="qc-desc">选择留联并提交后，本次自测结果才会匿名同步给校心理中心，老师可能借此关心你；不提交则结果只保存在你的手机上，不会上传。</p>
+      <div class="qc-mode">
+        <label><input type="radio" name="qcMode" value="phone" checked onchange="quizContactMode='phone'"> 手机号</label>
+        <label><input type="radio" name="qcMode" value="wechat" onchange="quizContactMode='wechat'"> 微信号</label>
+      </div>
+      <input id="qcInput" class="qc-input" type="text" placeholder="填写手机号或微信号" autocomplete="off" />
+      <label class="qc-consent"><input type="checkbox" id="qcConsent" /> 我同意在危机情况下由心理中心联系我</label>
+      <div class="btnrow">
+        <button type="button" class="primary-btn" onclick="submitContact()">提交留联</button>
+        <button type="button" class="quiz-exit" onclick="skipContact()">暂不留联</button>
+      </div>
+      <div id="qcMsg" class="qc-msg"></div>
+    </div>`:''}
+    <div class="btnrow"><button type="button" class="primary-btn" onclick="closeQuiz()">我记下了</button></div>`;
+}
+let quizContactMode = 'phone';
+let pendingAssess = null;   /* 高危自测的待上报载荷：仅当学生勾选同意并提交留联时才发送 */
+async function submitContact(){
+  const input = document.getElementById('qcInput');
+  const consent = document.getElementById('qcConsent');
+  const msg = document.getElementById('qcMsg');
+  if(!consent || !consent.checked){ if(msg){msg.textContent='请先勾选同意，才能提交留联。'; msg.className='qc-msg warn';} return; }
+  const v = (input && input.value || '').trim();
+  if(!v){ if(msg){msg.textContent='请填写要留的联系方式。'; msg.className='qc-msg warn';} return; }
+  try{
+    /* 留联 = 同意同步：自测结果与联系方式一次性上报（服务端校验为高危才落预警） */
+    const ok = await reportAssessment(Object.assign({ contact:v, contactMode:quizContactMode }, pendingAssess || {}));
+    if(ok){ if(msg){msg.textContent='已记录。谢谢你的信任——需要的时候，会有人陪着你。'; msg.className='qc-msg ok';} lockContact(); pendingAssess = null; }
+    else { if(msg){msg.textContent='提交未成功，请稍后重试，或主动联系校心理中心 / 辅导员。'; msg.className='qc-msg warn';} }
+  }catch(e){ if(msg){msg.textContent='网络未送达，请稍后重试，或主动联系校心理中心 / 辅导员。'; msg.className='qc-msg warn';} }
+}
+function skipContact(){
+  const box = document.getElementById('quizContact');
+  pendingAssess = null;   /* 不留联 = 不同步：丢弃待上报载荷，结果仅留本机 */
+  if(box){ box.innerHTML = '<p class="qc-desc">已选择不留联。本次结果不会同步给心理中心，仅保存在你的手机上。如需帮助，可随时拨打全国心理援助热线 12356（24 小时）。</p>'; }
+}
+function lockContact(){
+  const box = document.getElementById('quizContact');
+  if(!box) return;
+  box.querySelectorAll('input,button').forEach(el=>{ el.disabled = true; });
+}
+/* 匿名上报自测结果（仅学生勾选同意并提交留联时触发，可携带联系方式）；返回是否成功 */
+async function reportAssessment(payload){
+  try{
+    const body = Object.assign({ anonId:getAnonId(), date:localDateStr(new Date()) }, payload);
+    const r = await fetch(apiBase()+'api/assessment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    return !!r.ok;
+  }catch(e){ return false; }
+}
+
+/* ---------------- 发送 ---------------- */
+async function send(){
+  const inp=$('input'); const text=inp.value.trim();
+  if(!text) return;
+  const bub=addMsg('user',text);
+  // 2) 投递回执：把这次倾诉当成「投进树洞的一封信」
+  const rcpt=document.createElement('div'); rcpt.className='letter-receipt';
+  rcpt.textContent='📮 已投入树洞信箱';
+  bub.parentElement.appendChild(rcpt);
+  // 6) 首封隐藏空信箱状态
+  const me=$('mailEmpty'); if(me) me.style.display='none';
+  history.push({role:'user',content:text});
+  pushTopic(text);
+  maybeCrisis(text);
+  // 6) 本机信件计数 + 每满 10 封给一句温柔提醒（仅当前会话一次）
+  const cnt=(parseInt(localStorage.getItem('shudong_letter_count')||'0',10)+1);
+  localStorage.setItem('shudong_letter_count', String(cnt));
+  if(cnt%10===0 && !window._letterCheered){ window._letterCheered=true;
+    addSys('你的树洞信箱已经攒下了 '+cnt+' 封信。愿意一次一次说出口，本身就很了不起。', false, 'book', '树洞信箱'); }
+  inp.value=''; autoGrow(inp);
+  await doReply();
+}
+
+/* ---------------- 语音输入（双通道） ----------------
+   ① 国内/手机首选：录音 → 国内 ASR 转文字（复用你填的模型 Key，手机可跑）
+      —— 这正是「冰箱菜谱」能在手机上用的同一套实现（MediaRecorder 录音 → 国内 ASR 转文字）。
+      支持三种 ASR 后端，自动按你设置的模型选择：
+        · 智谱 GLM  → glm-asr-2512（open.bigmodel.cn，国内可用，推荐）
+        · 通义千问  → qwen3-asr-flash（dashscope，若你的通义 Key 不稳定可改选智谱）
+        · 硅基流动  → SenseVoiceSmall（免费，需单独填硅基 Key）
+   ② 回退：没填任何国内 Key 时，用浏览器原生 Web Speech（Chrome 国内走谷歌必失败，仅 Edge 可用）。
+   识别结果都实时填入输入框，确认后按「发送」。 */
+let recog=null, voiceNativeOn=false;     // 通道②原生识别状态
+let _media=null, _rec=null, _recording=false, _silTimer=null, _silAC=null;  // 通道①录音状态
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VOICE_SUPPORT = !!SR;
+const VOICE_ERR = {
+  'network':'识别服务连不上：国内 Chrome 走谷歌服务器基本不通，请改用 Edge 浏览器打开本页',
+  'not-allowed':'麦克风权限被拒绝：请在地址栏左侧允许麦克风；本地双击打开的 file:// 需用 https 或 localhost 打开',
+  'service-not-allowed':'浏览器未授权语音服务，建议改用 Edge 浏览器',
+  'audio-capture':'没检测到麦克风设备，请检查系统麦克风',
+  'language-not-supported':'当前浏览器不支持中文识别，建议改用 Edge'
+};
+function setVoiceStatus(msg, type){    // type: '' 普通 / 'err' 红 / 'ok' 绿
+  const el=$('voiceStatus'); if(!el) return;
+  el.textContent = msg||'';
+  el.className = 'voice-status' + (type?(' '+type):'');
+}
+/* ---------- 通道①：录音 → 中心 ASR 代理（Key 由服务端持有，学生端零密钥） ---------- */
+function abToB64(ab){ const bytes=new Uint8Array(ab); let bin=""; const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk) bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); return btoa(bin); }
+async function blobToWav(blob){
+  const ab=await blob.arrayBuffer();
+  const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); let audio;
+  try{ audio=await ctx.decodeAudioData(ab); } finally{ try{ctx.close();}catch(_e){} }
+  const sr=audio.sampleRate, ch=audio.numberOfChannels, len=audio.length, target=16000;
+  const outLen=Math.max(1,Math.round(len*target/sr)); const out=new Float32Array(outLen); const chans=[];
+  for(let c=0;c<ch;c++) chans.push(audio.getChannelData(c));
+  for(let i=0;i<outLen;i++){ const t=i*sr/target, i0=Math.floor(t), i1=Math.min(i0+1,len-1), f=t-i0; let v=0;
+    for(let c=0;c<ch;c++) v+=chans[c][i0]*(1-f)+chans[c][i1]*f; out[i]=v/ch; }
+  const buf=new ArrayBuffer(44+outLen*2), dv=new DataView(buf);
+  const wstr=(o,s)=>{for(let i=0;i<s.length;i++) dv.setUint8(o+i,s.charCodeAt(i));};
+  wstr(0,"RIFF"); dv.setUint32(4,36+outLen*2,true); wstr(8,"WAVE"); wstr(12,"fmt "); dv.setUint32(16,16,true);
+  dv.setUint16(20,1,true); dv.setUint16(22,1,true); dv.setUint32(24,target,true); dv.setUint32(28,target*2,true);
+  dv.setUint16(32,2,true); dv.setUint16(34,16,true); wstr(36,"data"); dv.setUint32(40,outLen*2,true);
+  for(let i=0;i<outLen;i++){ let s=Math.max(-1,Math.min(1,out[i])); dv.setInt16(44+i*2, s<0?s*0x8000:s*0x7FFF, true); }
+  return "data:audio/wav;base64,"+abToB64(buf);
+}
+async function asrTranscribe(dataUrl){
+  const r = await fetch(apiBase()+'api/asr', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({dataUrl})});
+  if(!r.ok){
+    let msg='语音识别服务不可用（中心未配置 qwen/glm Key，请在中心端 Key 管理里添加）';
+    try{ const d=await r.json(); if(r.status!==503 && d && d.detail) msg='识别失败（'+(d.error||r.status)+'）：'+String(d.detail).slice(0,120); }catch(_e){}
+    throw new Error(msg);
+  }
+  const j = await r.json();
+  const t = String(j.text||'').trim();
+  if(!t) throw new Error('识别内容为空');
+  return t;
+}
+function stopRecorder(){
+  try{ if(_rec&&_rec.state!=="inactive") _rec.stop(); }catch(_e){}
+  try{ if(_media) _media.getTracks().forEach(t=>t.stop()); }catch(_e){}
+  if(_silTimer){ clearInterval(_silTimer); _silTimer=null; }
+  if(_silAC){ try{_silAC.close();}catch(_e){} _silAC=null; }
+}
+async function startRecording(){
+  const secure=window.isSecureContext||location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1";
+  if(!secure){ setVoiceStatus('手机/浏览器要求 HTTPS 才能用麦克风。请部署到 yaocoding.cn 等 HTTPS 环境后使用语音', 'err'); return; }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==="undefined"){
+    setVoiceStatus('当前浏览器不支持录音，请用键盘输入（效果相同）', 'err'); return;
+  }
+  setVoiceStatus('正在录音…说完停顿约 2 秒，会自动转成文字', 'ok');
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    let mime="audio/webm"; if(!MediaRecorder.isTypeSupported(mime)) mime="audio/mp4";
+    _media=stream; const chunks=[];
+    _rec=new MediaRecorder(stream,{mimeType:mime});
+    _rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
+    _rec.onstop=async()=>{
+      try{
+        setVoiceStatus('正在识别语音…', 'ok');
+        const blob=new Blob(chunks,{type:mime});
+        const dataUrl=await blobToWav(blob);
+        const text=await asrTranscribe(dataUrl);
+        const inp=$('input'); const base=inp.value.replace(/\s+$/,'');
+        inp.value=base?base+' '+text:text; autoGrow(inp);
+        setVoiceStatus('已转成文字，确认无误后点「发送」', 'ok');
+      }catch(err){
+        setVoiceStatus(err.message.indexOf('不可用')>=0?'语音识别中心未配置 Key：请在中心端「Key 管理」里添加 qwen 或 glm 的 Key':('识别失败：'+err.message), 'err');
+      }finally{ _recording=false; const b=$('micBtn'); b.classList.remove('listening'); b.innerHTML=iconSvg('mic'); }
+    };
+    _rec.start(); _recording=true; const b=$('micBtn'); b.classList.add('listening'); b.innerHTML=iconSvg('stop');
+    // 静音自动停止（说完停顿约 2 秒自动收尾）。
+    // 坑：AudioContext 在 getUserMedia 的 await 之后才创建，浏览器用户手势可能已过期，
+    //     会把它建成 suspended 态——分析器读到的全是 0（假静音），spoke 永远不置 true，
+    //     自动收尾就永远不触发，只能手动点按钮。必须显式 resume()。
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext; const ac=new AC();
+      if(ac.state==='suspended'){ ac.resume().catch(function(){}); }
+      const src=ac.createMediaStreamSource(stream), an=ac.createAnalyser(); an.fftSize=1024; src.connect(an); _silAC=ac;
+      const buf=new Uint8Array(an.frequencyBinCount); let silent=0, spoke=false, floor=0.006;
+      _silTimer=setInterval(()=>{
+        an.getByteTimeDomainData(buf); let sum=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; sum+=v*v; }
+        const rms=Math.sqrt(sum/buf.length);
+        if(!spoke){
+          /* 还没听到说话：顺带估计环境噪声底，说话阈值取 max(固定下限, 噪声×3)——
+             安静麦克风（原固定 0.02 触发不了）和嘈杂环境都能正确判定「在说话」 */
+          floor=floor*0.95+rms*0.05;
+          if(rms>Math.max(0.018,floor*3)){ spoke=true; silent=0; }
+        }else if(rms<Math.max(0.010,floor*1.8)){
+          /* 说完后的静音：连续约 2 秒才收尾，避免中途思考停顿被拦腰截断（漏字） */
+          if(++silent>20){ silent=0; stopRecorder(); }
+        }else{ silent=0; }
+      },100);
+    }catch(_e){}
+    setTimeout(()=>{ if(_recording){ _recording=false; setVoiceStatus('已到 60 秒上限，自动识别', 'ok'); stopRecorder(); } },60000);
+  }catch(err){ _recording=false; const b=$('micBtn'); b.classList.remove('listening'); b.innerHTML=iconSvg('mic');
+    setVoiceStatus('无法访问麦克风：'+(err&&err.message||err)+' · 请用键盘输入', 'err'); }
+}
+/* ---------- 通道②：浏览器原生 Web Speech（仅 Edge 可用，作为无通义 Key 时的兜底） ---------- */
+/* 语音填字的去重规则（手机端必需）：
+ * 移动端引擎的 interim 结果常常是「整句递进」——说「我最近心情不好」会依次给出
+ * 「我」「我最」「我最近」… 若每来一次事件就往输入框追加，就变成「我 我最 我最近…」的叠句。
+ * 所以这里改成「重设」语义：输入框内容 = 聆听前的原文 + 已定稿片段 + 当前最后一条临时结果，
+ * 每次事件整体重写；两段文本存在包含关系时取更长的那段，避免同一句被写两遍。 */
+let _voiceBase='', _voiceComm='';
+function _voiceMerge(a,b){
+  a=String(a||'').trim(); b=String(b||'').trim();
+  if(!a) return b; if(!b) return a;
+  if(b.indexOf(a)===0) return b;      // b 是 a 的延展（递进型）→ 取更长的 b
+  if(a.indexOf(b)===0) return a;      // a 已包含 b → 保留 a
+  return a+b;                         // 互不包含 → 正常拼接
+}
+function _voiceRender(interim){
+  const inp=$('input'); if(!inp) return;
+  const base=_voiceBase.replace(/\s+$/,'');
+  const body=_voiceMerge(_voiceComm, interim);
+  inp.value = (base && body) ? (base+' '+body) : (base || body);
+  autoGrow(inp);
+}
+function buildRecog(){
+  const inp=$('input');
+  recog=new SR(); recog.lang='zh-CN'; recog.continuous=false; recog.interimResults=true;
+  recog.onstart=function(){
+    window._voiceHeard=false;
+    _voiceBase=inp.value.replace(/\s+$/,'');   // 记下聆听前输入框里已有的文字，本次识别只重写它之后的部分
+    _voiceComm='';                             // 本次聆听的已定稿片段
+    setVoiceStatus('正在聆听…说完停顿约 1 秒会自动收尾（原生识别）', 'ok');
+  };
+  recog.onresult=function(e){
+    window._voiceHeard=true;
+    /* 1) 已定稿片段：逐条合并（含包含关系时去重，防同一句被算两遍） */
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) _voiceComm=_voiceMerge(_voiceComm, e.results[i][0].transcript);
+    }
+    /* 2) 临时结果：只取最后一条，绝不累加——累加就是手机端叠句的根源 */
+    const last=e.results[e.results.length-1];
+    const interim=(last && !last.isFinal) ? last[0].transcript : '';
+    _voiceRender(interim);
+  };
+  recog.onend=function(){
+    if(voiceNativeOn){
+      if(!window._voiceHeard) setVoiceStatus('没听到你说什么 · 再点一次麦克风按钮，说完停顿 1 秒', 'err');
+      else setVoiceStatus('已转成文字，确认无误后点「发送」', 'ok');
+    }
+    voiceNativeOn=false; const b=$('micBtn'); b.classList.remove('listening'); b.innerHTML=iconSvg('mic');
+  };
+  recog.onerror=function(e){
+    if(e.error==='aborted'||e.error==='no-speech') return;
+    setVoiceStatus(VOICE_ERR[e.error]||('语音识别中断：'+e.error),'err');
+    voiceNativeOn=false; const b=$('micBtn'); b.classList.remove('listening'); b.innerHTML=iconSvg('mic');
+  };
+  return true;
+}
+function startNative(){
+  if(!VOICE_SUPPORT){ setVoiceStatus('当前浏览器不支持原生语音识别，请填「智谱GLM」或「通义千问」Key 走国内 ASR（手机可用），或改用 Edge 浏览器', 'err'); return; }
+  window._voiceHeard=false;
+  try{ buildRecog(); recog.start(); }catch(err){ setVoiceStatus('无法启动麦克风：'+(err&&err.message||err),'err'); return; }
+  voiceNativeOn=true; const b=$('micBtn'); b.classList.add('listening'); b.innerHTML=iconSvg('stop');
+}
+function toggleVoice(){
+  // 正在录音（通道①）→ 停止并识别
+  if(_recording){ _recording=false; setVoiceStatus('正在识别语音…','ok'); stopRecorder(); return; }
+  // 正在原生聆听（通道②）→ 停止
+  if(voiceNativeOn){ if(recog) try{recog.stop();}catch(e){} return; }
+  // 语音识别统一走中心 ASR 代理（服务端持有 qwen/glm Key），无需本机 Key
+  startRecording();
+}
+
+async function doReply(){
+  $('sendBtn').disabled=true;
+  const chat=$('chat');
+  const oldRetry=chat.querySelector('.sys .ghost[onclick^="retryLast"]');
+  if(oldRetry) oldRetry.parentElement.remove();
+
+  // 小站分诊：自动模式下调用模型判断该谁接（转接过程始终可见）
+  const lastUser = history[history.length-1]?.content || '';
+  const route = await routeAgent(lastUser);
+  window._agent = route.agent;
+  /* 小测走结构化量表，不进聊天。
+     C 案守卫：危机层已经开着时不再短路拉量表——同一次发送里 maybeCrisis() 先弹了
+     热线资源卡，若这里再叠一层 PHQ-9，量表会盖住危机卡（两者同为 .mask，后来居上），
+     而且这个 return 还会跳过小陪的回复，学生既看不到热线也听不到人回应。
+     放行后继续走正常的陪伴回复，危机层保持置顶。 */
+  if(window._agent==='ce' && !$('crisisMask').classList.contains('show')){
+    openQuiz(); return;
+  }
+  if(currentAgent==='auto' && !route.silent){
+    addHandoff(window._agent, route.reason);
+  }
+
+  const typing=document.createElement('div'); typing.className='typing';
+  typing.textContent = (window._agent==='zi') ? '小咨检索资料中…' : (window._agent==='ce') ? '小测引导中…' : '小陪正在倾听…';
+  chat.appendChild(typing); scrollChat();
+
+  window._bub=null; window._full='';
+  const result = await callAI(window._agent);
+  typing.remove();
+  await finishReply(result);
+}
+
+async function finishReply(result){
+  let display, mood, failed=false, errorMsg='';
+  if(result.ok){
+    display = squeezeChatText(result.text, window._agent);
+  }else{
+    failed=true; errorMsg=result.error;
+    display = squeezeChatText(result.fallback, window._agent);
+    addSys('模型连接遇到问题：'+errorMsg);
+  }
+  if(!window._bub){ window._bub=addMsg('bot',display,window._agent); }
+  else { window._bub.textContent = display; }
+
+  // 命中逻辑保留：searchKB 的检索结果仍用于 grounding 注入（仅依据资料回答）；
+  // 按需求不再在气泡下渲染「参考来源」面板。
+
+  // 心情改为后台独立推断，不再从对话里抠标记
+  const userText = history[history.length-1]?.content || '';
+  mood = await inferMood(userText, display);
+  addMood(mood);
+  sessionMoods.push(mood);
+  history.push({role:'bot',content:display, agent:window._agent});
+
+  if(failed){
+    const retryWrap=document.createElement('div'); retryWrap.className='sys retry';
+    retryWrap.innerHTML='<button type="button" class="ghost" onclick="retryLast()">'+iconSvg('refresh')+'再试一次</button>';
+    $('chat').appendChild(retryWrap); scrollChat();
+  }
+
+  // 数据闭环：持久化心情 + 连续负向关怀
+  pushMood(mood);
+  // 聊天中实时匿名上报：每条发言都报，不再以「情绪变化 或 话题变化」为闸门
+  // （2026-09-24 用户拍板：去掉「情绪/话题转换才统计」这个概念，
+  //   中心端看到的条数必须等于学生真实说话的条数）。
+  /* 话题口径与本机 pushTopic 完全一致：本条命中词表就取主导话题，一条都没命中则不报话题
+     （不做会话延续——2026-09-25 废止，延续会把「面试被拒了三次」这类无关句算到别的话题上）。 */
+  reportToCenter(mood, topicOfText(userText), true);
+  checkPersistentLow();
+
+  /* 正念呼吸主动提议：两条路进，都只在「身体真的发紧」时成立。
+     ① 急路：话里直接描述了躯体紧张（喘不过气/心跳快/胸闷/手抖）→ 一次就提。
+        这是呼吸法最对得上的场景，等"连续几轮"反而错过当下。
+     ② 缓路：连续 3 轮焦虑/崩溃 → 提一次（原来只看"负向"、2 轮就弹，既频又错配）。
+     低落、麻木是能量低/失感，需要的是被听见，不给呼吸法。
+     **不限制由哪个 Agent 接待**：呼吸卡针对的是学生身体状态，不是话题归属——
+     分诊把小陪/小咨谁来接都该给（曾经写死 "小陪" 导致归小咨时该弹不弹）。
+     全局仍是：本次会话一次 + 跨会话 24 小时冷却。 */
+  const bodyTense = BODY_TENSE_RE.test(userText);
+  const joking = /笑死|好笑|哈哈|笑抽|逗死|笑不活/.test(userText);   // "笑死，喘不过气了"是玩笑，别当真
+  const urgent = bodyTense && !joking && mood!=='希望' && mood!=='温暖';
+  const TENSE_SET = (mood==='焦虑'||mood==='崩溃');
+  tenseStreak = TENSE_SET ? tenseStreak+1 : 0;
+  /* 冷遇规则：
+     急路（躯体信号）**不受跨会话冷却约束**——它是"当下"的事，24 小时内只准提一次
+     等于见死不救（实测踩过：上一轮弹过一次后，第二天的求助直接被静默）。
+     但同一场对话最多提醒 2 次，避免连着发同样的话刷出一排卡片。
+     缓路（累计型信号）保持 24 小时冷却 + 每场 1 次。 */
+  if(!window._breathOfferCount) window._breathOfferCount = 0;
+  const cap = urgent ? 2 : 1;
+  const allowed = window._breathOfferCount < cap;
+  const notCold = urgent ? true : cooled(BREATH_AT_KEY, 864e5);
+  if((urgent || (TENSE_SET && tenseStreak>=3)) && allowed && notCold){
+    window._breathOfferCount += 1; markCooled(BREATH_AT_KEY);
+    const tip=document.createElement('div'); tip.className='sys breath-tip';
+    const t=document.createElement('span');
+    t.textContent = urgent
+      ? '听起来这会儿真的难受。别的都先放着，跟着我慢慢把气顺过来，一分钟就好。'
+      : '看你连着几轮都提到心里发紧。要不要一起做一分钟深呼吸？就几个回合，不费劲。';
+    const b=document.createElement('button'); b.type='button'; b.className='ghost breath-cta';
+    b.innerHTML=iconSvg('breath')+'一分钟呼吸放松'; b.onclick=openBreath;
+    tip.append(t,b);
+    $('chat').appendChild(tip); scrollChat();
+  }
+
+  $('sendBtn').disabled=false; window._bub=null; window._full='';
+  $('input').focus();
+  /* 数据闭环：本轮心情/话题已写入本机，立即刷新日历与晴雨表，
+     避免「切到汇总视图才渲染」造成的「滞后一轮」体感（本轮结束即最新） */
+  renderCalendar();
+  renderInsight();
+}
+
+function retryLast(){
+  while(history.length && history[history.length-1].role==='bot') history.pop();
+  if(!history.length || history[history.length-1].role!=='user') return;
+  const chat=$('chat');
+  const msgs=chat.querySelectorAll('.msg.bot');
+  if(msgs.length) msgs[msgs.length-1].remove();
+  const moods=chat.querySelectorAll('.moodbar');
+  if(moods.length) moods[moods.length-1].remove();
+  /* 只删「再试一次」那张卡。原来无脑删最后一个 .sys——若是呼吸提议卡排在后面，
+     就会被顺手带走（卡片凭空消失的另一种成因）。 */
+  const sys=chat.querySelector('.sys.retry');
+  if(sys) sys.remove();
+  const ho=chat.querySelectorAll('.handoff');
+  if(ho.length) ho[ho.length-1].remove();
+  doReply();
+}
+
+/* ---------------- 心声日历 ---------------- */
+function renderCalendar(){
+  const log = loadMoodLog();
+  const grid = $('calGrid'); grid.innerHTML='';
+  // 最近 7 天
+  const days=[];
+  const today = new Date();
+  for(let i=6;i>=0;i--){
+    const d=new Date(today); d.setDate(today.getDate()-i);
+    days.push(d);
+  }
+  const dateStr=d=>localDateStr(d);
+  /* 一天可能倾诉多次：记下当天最后一条心情 + 当天次数。
+     次数越多格子底色越实、右上角标出次数——否则「聊了 4 次」在日历上只剩一个点，看着像只有当天。 */
+  const byDate={};
+  log.forEach(x=>{
+    const cur=byDate[x.date];
+    if(cur){ cur.mood=x.mood; cur.count+=1; }
+    else byDate[x.date]={ mood:x.mood, count:1 };
+  });
+  days.forEach(d=>{
+    const ds=dateStr(d);
+    const info=byDate[ds];
+    const cell=document.createElement('div'); cell.className='cal-cell';
+    const week=['日','一','二','三','四','五','六'][d.getDay()];
+    cell.innerHTML=`<div class="d">${d.getMonth()+1}/${d.getDate()}</div>`;
+    if(info){
+      const dot=document.createElement('div'); dot.className='dot';
+      dot.style.background=MOOD_COLOR[info.mood];
+      const deep=Math.min(13+info.count*9,48);   // 1 次≈22%，逐次加深，封顶 48%
+      cell.style.background=`color-mix(in oklab, ${MOOD_COLOR[info.mood]} ${deep}%, var(--surface-2))`;
+      cell.appendChild(dot);
+      if(info.count>1){
+        const n=document.createElement('span'); n.className='cal-n'; n.textContent=info.count;
+        cell.appendChild(n);
+      }
+      cell.title=`${ds} · ${info.mood} · 倾诉 ${info.count} 次`;
+    }else{
+      const dot=document.createElement('div'); dot.className='dot';
+      dot.style.background='transparent'; dot.style.border='1px dashed var(--border-strong)';
+      cell.appendChild(dot);
+    }
+    grid.appendChild(cell);
+  });
+  // 统计
+  const total=log.length;
+  const cnt={};
+  log.forEach(x=>cnt[x.mood]=(cnt[x.mood]||0)+1);
+  const topMood = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+  const last7 = log.filter(x=>{
+    const d=new Date(x.date); return (today-d)<=7*864e5 && (today-d)>=0;
+  }).length;
+  $('calStat').innerHTML = total===0
+    ? '还没有记录。去「倾诉」页说点什么，树洞会替你记下来。'
+    : `累计倾诉 <b>${total}</b> 次 · 近 7 天 <b>${last7}</b> 次` + (topMood? ` · 最常出现的情绪是「<b>${topMood[0]}</b>」`:'');
+
+  // 情绪走势线（硬分析：每日平均极性）
+  const byDateScore={};
+  log.forEach(x=>{ if(MOOD_SCORE[x.mood]!==undefined) byDateScore[x.date]=MOOD_SCORE[x.mood]; });
+  const pts=days.map(d=>{
+    const s=byDateScore[dateStr(d)];
+    if(s===undefined) return null;
+    const x=28 + days.indexOf(d)*( (280-56)/(days.length-1) );
+    const y=32 - s*26;            // 极性映射到 y（保留圆形边界）
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).filter(Boolean);
+  let spark='';
+  if(pts.length>=2){
+    const area=`28,32 ${pts.join(' ')} 252,32`;
+    spark=`<svg class="spark" viewBox="0 0 280 64" preserveAspectRatio="none">
+      <polygon points="${area}" class="spark-area"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg>`;
+  }else{
+    spark='<div class="muted" style="margin:6px 0;">记录再多一点，就能看到情绪起伏的线啦。</div>';
+  }
+  $('calSpark').innerHTML = spark;
+
+  // 主题画像
+  const topics=loadTopics();
+  const entries=Object.entries(topics).sort((a,b)=>b[1]-a[1]);
+  const max=entries.length?entries[0][1]:1;
+  const box=$('topicBars');
+  if(entries.length===0){
+    // 空态：不写一句话，改成灰化占位条，暗示「这里会长出你的画像」
+    box.className='is-empty';
+    box.innerHTML = [62,78,46].map(w=>`<div class="topic-skel" style="width:${w}%" aria-hidden="true"></div>`).join('');
+  }
+  else{
+    box.className='';
+    box.innerHTML = entries.map(([k,v])=>`
+      <div class="topic-row">
+        <div class="topic-name">${k}</div>
+        <div class="topic-bar"><div class="topic-fill" style="width:${Math.round(v/max*100)}%"></div></div>
+        <div class="topic-num">${v}</div>
+      </div>`).join('');
+  }
+}
+
+/* ---------------- 导出本机记录（JSON，纯前端下载） ----------------
+   只导出这台设备 localStorage 里已有的东西；不含聊天原文（原文从不落盘），
+   也刻意不含 API Key（避免把密钥写进一个会随手分享的文件里）。 */
+function exportMyData(){
+  const moodLog = loadMoodLog();
+  const topics  = loadTopics();
+  let letters = [];
+  try{ letters = (typeof loadFutureLetters==='function') ? loadFutureLetters() : []; }catch(e){}
+  let customKB = [];
+
+  const payload = {
+    _meta: {
+      app: '树洞信箱 · 学生端本机记录导出',
+      exportedAt: new Date().toISOString(),
+      version: DATA_VER,
+      note: '本文件仅包含这台设备浏览器中已有的数据，用于个人备份或换设备时自查；不含聊天原文，不含 API Key，也不含心理中心的聚合数据。'
+    },
+    anonId: getAnonId(),
+    moodLog: moodLog,                 // [{date, mood, ts}]
+    topics: topics,                   // {话题: 次数}
+    futureLetters: letters,           // 写给未来的信
+    letterCount: parseInt(localStorage.getItem('shudong_letter_count')||'0',10),
+    settings: {
+      model: '中心代理（deepseek）',
+      customKB: customKB
+    }
+  };
+
+  const d = new Date();
+  const stamp = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '树洞信箱_本机记录_'+stamp+'.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  toast('已导出：'+moodLog.length+' 条心声记录');
+}
+
+function clearMyData(){
+  if(!confirm('确定清空本机全部心声数据？此操作不可恢复。')) return;
+  localStorage.removeItem(MOOD_LOG_KEY);
+  localStorage.removeItem(TOPIC_LOG_KEY);
+  /* 冷却标记也属于「我的本机数据」，一并清掉——否则清空后若在冷却期内，提示会静默不出现 */
+  localStorage.removeItem(BREATH_AT_KEY);
+  localStorage.removeItem(CARE_AT_KEY);
+  /* ② 修复：清空本机数据必须一并清掉信件计数 / 写给未来的信 / 匿名身份，
+     否则清完首页仍显示「攒下 N 封」、未来信列表残留、且匿名身份无法重置 */
+  localStorage.removeItem('shudong_letter_count');
+  localStorage.removeItem('shudong_future_letters');
+  localStorage.removeItem('shudong_anon');
+  careShown=false; sessionMoods=[]; history=[]; tenseStreak=0;
+  window._pinnedAgent=null; window._lastAgent=null; window._breathOfferCount=0;   // 清空对话时同时解除点名锁定、分诊记忆与呼吸提议计数
+  renderCalendar();
+  $('chat').innerHTML='<div class="msg bot"><div class="ava" aria-hidden="true">'+iconEmoji('leaf')+'</div><div class="msg-body"><div class="bubble">都清干净啦。这里永远是干净的开始，想说的时候，我都在。</div></div></div>';
+  /* ② 同步刷新 UI：恢复空信箱欢迎块、重渲染未来信列表（此时本地数据已清空） */
+  const me=$('mailEmpty'); if(me){ me.innerHTML='<div class="big">📭</div><div>你的树洞信箱还是空的。</div><div>投出第一封信，开始和树洞说话——<b>不评判、不泄密</b>。</div>'; me.style.display=''; }
+  renderFutureList();
+  toast('已清空本机数据');
+}
+
+/* ---------------- 树洞晴雨表（个人情绪记录·仅本机） ---------------- */
+function renderInsight(){
+  // 只统计本机累计的、你自己的倾诉记录（日期+情绪+话题），绝不保留原文
+  const log = loadMoodLog();
+  const dist = {};
+  log.forEach(x=>{ if(MOOD_COLOR[x.mood]) dist[x.mood]=(dist[x.mood]||0)+1; });
+  const total = Object.values(dist).reduce((a,b)=>a+b,0);
+  let negPct = 0;                       // 提到函数作用域：后续 renderInsightAlert 要用
+  const donut=$('donut'), legend=$('legend'), metrics=$('insightMetrics');
+
+  if(total===0){
+    donut.style.background='var(--surface-2)';
+    donut.querySelector('.donut-center').innerHTML='<div class="dc-num">—</div><div class="dc-lab">还没有记录</div>';
+    legend.innerHTML='<div class="muted">还没有你的心声记录。去「倾诉」聊聊，这里会慢慢长出你自己的情绪画像。</div>';
+    metrics.innerHTML='<div class="muted">平均情绪极性：<b>—</b></div><div class="muted">负向情绪占比：<b>—</b></div>';
+  } else {
+    let acc=0; const stops=[];
+    for(const [k,v] of Object.entries(dist)){
+      const start=acc/total*360, end=(acc+v)/total*360; acc+=v;
+      stops.push(`${MOOD_COLOR[k]} ${start}deg ${end}deg`);
+    }
+    donut.style.background=`conic-gradient(${stops.join(',')})`;
+    donut.querySelector('.donut-center').innerHTML=`<div class="dc-num">${total}</div><div class="dc-lab">条心声记录</div>`;
+    legend.innerHTML = Object.entries(dist)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([k,v])=>`<div class="li"><span class="sw" style="background:${MOOD_COLOR[k]}"></span>${k} ${Math.round(v/total*100)}%</div>`).join('');
+
+    let wsum=0, neg=0;
+    for(const [k,v] of Object.entries(dist)){ wsum += (MOOD_SCORE[k]||0)*v; if(NEG_SET.has(k)) neg+=v; }
+    const avg = wsum/total;
+    negPct = Math.round(neg/total*100);
+    metrics.innerHTML =
+      `<div class="gauge"><span class="num">${avg>=0?'+':''}${avg.toFixed(2)}</span><span class="lab">平均情绪极性</span></div>
+       <div class="muted">负向情绪占比 <b style="color:var(--warn)">${negPct}%</b>${negPct>=40?' · <span class="risk orange">需要留意自己</span>':' · <span class="risk green">平稳</span>'}</div>
+       <div class="muted">你已留下 ${total} 条心声</div>`;
+  }
+
+  // 主题词云（基于你自己的话题统计，按提及量缩放字号）
+  const topics = loadTopics();
+  const entries = Object.entries(topics).sort((a,b)=>b[1]-a[1]);
+  const $cloud = $('topicCloud');
+  if(entries.length===0){
+    $cloud.innerHTML='<div class="muted">还没有话题记录。</div>';
+  } else {
+    const maxW = Math.max(...entries.map(e=>e[1]));
+    $cloud.innerHTML = entries.map(([k,v],i)=>{
+      const sz = 14 + Math.round(v/maxW*18);
+      return `<span style="font-size:${sz}px;color:${i===0?'var(--accent-ink)':'var(--fg)'}">${k}</span>`;
+    }).join('');
+  }
+  // 数据→关怀：把个人情绪记录翻译成一句温柔的自我关怀建议
+  renderInsightAlert(dist, total, negPct, topics);
+}
+
+/* 自我关怀提示：基于个人情绪占比给出可执行的小建议（非诊断） */
+function renderInsightAlert(dist, total, negPct, topics){
+  const box=$('insightAlert');
+  if(!box) return;
+  if(total===0){
+    box.innerHTML='<div class="alert-card alert-green"><div class="at"><span class="dot"></span>暂无提示</div>每聊完一次，这里都会给出一份只属于你的温柔建议。</div>';
+    return;
+  }
+  let level, title, body;
+  if(negPct>=45){
+    level='red'; title='多照顾一下自己';
+    body=`最近 <b>${negPct}%</b> 的倾诉带着负向情绪。<span class="adv">先试试「一分钟呼吸放松」安顿身体；如果这种累持续了很久，学校心理中心也随时欢迎你——求助是勇敢，不是麻烦。</span>`;
+  } else if(negPct>=30){
+    level='orange'; title='有点累的时候';
+    body=`负向情绪占比 <b>${negPct}%</b>。<span class="adv">睡前做几次深呼吸，或把想说的话继续说给树洞听——被听见本身就有用。</span>`;
+  } else {
+    level='green'; title='状态平稳';
+    body=`你的情绪整体平稳（负向 <b>${negPct}%</b>）。<span class="adv">继续保持对自己的诚实记录，偶尔来树洞坐坐就好。</span>`;
+  }
+  box.innerHTML=`<div class="alert-card alert-${level}"><div class="at"><span class="dot"></span>${title}</div>${body}</div>`;
+}
+
+/* ---------------- 正念呼吸练习（Web Audio + CSS 动画，纯前端，零额外成本） ---------------- */
+let breathTimer=null, breathRound=0, _breathAudio=null;
+function _tone(freq){
+  try{
+    _breathAudio = _breathAudio || new (window.AudioContext||window.webkitAudioContext)();
+    if(_breathAudio.state==='suspended') _breathAudio.resume();
+    const o=_breathAudio.createOscillator(), g=_breathAudio.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    o.connect(g); g.connect(_breathAudio.destination);
+    const t=_breathAudio.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.05,t+0.08);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+1.1);
+    o.start(t); o.stop(t+1.2);
+  }catch(e){}
+}
+function openBreath(){ $('breathMask').classList.add('show'); startBreath(); }
+function closeBreath(){ $('breathMask').classList.remove('show'); stopBreath(); }
+function stopBreath(){ if(breathTimer){ clearTimeout(breathTimer); breathTimer=null; } }
+function startBreath(){
+  stopBreath(); breathRound=0;
+  const c=$('breathCircle'), cnt=$('breathCount');
+  c.className='breath-circle out'; c.textContent='准备'; cnt.textContent='准备好了就开始…';
+  const inhale=()=>{
+    c.className='breath-circle in'; c.textContent='吸气'; cnt.textContent='第 '+(breathRound+1)+' 回合 · 慢慢把气吸进来';
+    _tone(396);
+    breathTimer=setTimeout(hold,4000);
+  };
+  const hold=()=>{ c.textContent='屏息'; cnt.textContent='停一下，感受这一刻'; breathTimer=setTimeout(exhale,2000); };
+  const exhale=()=>{
+    c.className='breath-circle out'; c.textContent='呼气'; cnt.textContent='把气缓缓吐出去';
+    _tone(264);
+    breathTimer=setTimeout(()=>{
+      breathRound++;
+      if(breathRound>=6){ c.textContent='完成 ✓'; cnt.textContent='做得很好，回到当下吧。'; setTimeout(closeBreath,1400); return; }
+      inhale();
+    },4000);
+  };
+  breathTimer=setTimeout(inhale,600);
+}
+
+/* ---------------- 我的对话洞察（硬分析·第四视图） ---------------- */
+function computeProfile(){
+  const log = loadMoodLog();
+  const scored = log.map(x=>MOOD_SCORE[x.mood]).filter(v=>v!==undefined);
+  const avg = scored.length ? scored.reduce((a,b)=>a+b,0)/scored.length : 0;
+  const recent = log.slice(-5).map(x=>x.mood);
+  const recentNeg = recent.filter(m=>NEG_SET.has(m)).length;
+  return {avg, total:log.length, recentNeg, hasData: scored.length>0};
+}
+function renderProfile(){
+  const p = computeProfile();
+  const sign = p.avg>=0?'+':'';
+  $('profileScore').innerHTML = `<span class="num">${p.hasData? sign+p.avg.toFixed(2) : '—'}</span><span class="lab">整体情绪极性（-1 到 +1）</span>`;
+  let risk='', tip='';
+  if(!p.hasData){ risk='<span class="risk green">暂无数据</span>'; tip='去「倾诉」聊聊，积累一些心声数据吧。'; }
+  else if(p.recentNeg>=3){ risk='<span class="risk orange">需留意 · 近期偏负向，建议多关照自己</span>'; }
+  else if(p.avg<0){ risk='<span class="risk yellow">偏负向 · 整体略低</span>'; }
+  else { risk='<span class="risk green">平稳 · 整体状态不错</span>'; }
+  $('profileRisk').innerHTML = risk + (tip?`<div class="muted" style="margin-top:4px;">${tip}</div>`:'');
+  const topics=loadTopics();
+  const entries=Object.entries(topics).sort((a,b)=>b[1]-a[1]);
+  $('profileTopics').innerHTML = entries.length
+    ? '<div class="muted" style="margin-bottom:6px;">你在意的话题</div>' +
+      entries.slice(0,5).map(([k,v])=>`<span class="topic-chip">${k} · ${v}</span>`).join('')
+    : '<div class="muted">还没有话题记录。</div>';
+  $('profileSummary').style.display='none';
+}
+
+async function generateInsight(){
+  const p = computeProfile();
+  if(!p.hasData && history.length===0){ toast('还没有可分析的对话，先去聊聊吧'); return; }
+  const btn=$('insightBtn'); btn.disabled=true; btn.innerHTML=iconSvg('spark')+'分析中…';
+  const topics=loadTopics();
+  const topTopics=Object.entries(topics).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]).join('、')||'（暂无）';
+  let summary='';
+  const dialog = history.slice(-24).map(m=>(m.role==='user'?'用户：':'树洞：')+m.content).join('\n');
+  const sys = `你是树洞信箱的心理画像分析师。基于下面的对话片段，写一段温柔、克制的中文个人小结（3-5 句），包含：① 主诉话题；② 情绪走向（用平实语言，不要贴诊断标签）；③ 一句温和的建议。不要使用"患者""疾病""治疗"等词，不要做医学诊断。`;
+  try{
+    const model = 'deepseek';
+    const body={model:model,messages:[{role:'system',content:sys},{role:'user',content:'整体极性 '+p.avg.toFixed(2)+'，高频话题：'+topTopics+'\n\n对话：\n'+dialog}],stream:false,temperature:0.8,max_tokens:320};
+    const res=await callLLM(body);
+    if(!res.ok) throw new Error('insight '+res.status);
+    const j=await res.json();
+    summary = j.choices?.[0]?.message?.content?.trim() || '（模型未返回内容）';
+  }catch(e){ summary = `（模型暂不可用，已用本地分析替代）你共倾诉 ${p.total} 次，整体情绪极性 ${p.avg>=0?'+':''}${p.avg.toFixed(2)}，最常聊到的是「${topTopics}」。${p.recentNeg>=3?'最近几次都偏沉重，记得对自己温柔一点。':'整体还算平稳，继续保持。'}`; }
+  const box=$('profileSummary');
+  box.textContent = summary;
+  box.style.display='block';
+  btn.disabled=false; btn.innerHTML=iconSvg('spark')+'重新生成洞察';
+}
+
+/* ---------------- 结束倾诉 / 纪念卡 ---------------- */
+/* 生成纪念卡主文案：有 Key 时让模型基于本次对话写一句全新抚慰语（不引用原话、不超 40 字）；
+   无 Key / 模型失败 / 返回异常时，回落到按心情写死的 MOOD_TEXT，保证永远有字。 */
+function cardFallback(mood){ return MOOD_TEXT[mood] || MOOD_TEXT['平静']; }
+async function genCardMsg(mood){
+  const fb = cardFallback(mood);
+  try{
+    const model = 'deepseek';
+    const recent = history.slice(-6).map(h=>h.content).join('\n').slice(-600);
+    const sys = '你是树洞信箱的陪伴者。根据这段对话，写一句温柔的、给倾诉者的抚慰话，作为「纪念卡」文字。'
+      + '要求：只输出一句话，不超过 30 字；不要复述、不要引用对方的任何原话；不要出现称呼；'
+      + '语气像轻声陪在身边。如果信息太少无法确定写什么，就原样回复：' + fb;
+    const body={model:model, messages:[{role:'system',content:sys},{role:'user',content:recent||fb}], stream:false, temperature:0.8, max_tokens:48};
+    const res=await callLLM(body);
+    const j=await res.json();
+    let t=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||'').trim();
+    t=t.replace(/^["'「『]+|["'」』]+$/g,'').replace(/\s*\n\s*/g,' ').trim();
+    if(!t || t.length>40) return fb;   // 空或过长 → 兜底
+    return t;
+  }catch(e){ return fb; }
+}
+
+async function endSession(){
+  if(history.length===0){ toast('还没有说任何话呢'); return; }
+  const last = sessionMoods[sessionMoods.length-1] || '平静';
+  const date = new Date().toLocaleDateString('zh-CN');
+  $('cardText').textContent = '正在生成纪念卡…';
+  const msg = await genCardMsg(last);
+  $('cardText').textContent = msg + '\n\n—— 你今天，把自己好好说出来了。';
+  drawCard(msg, date, last);
+  $('cardMask').classList.add('show');
+  /* 数据闭环：不再重复上报——聊天中每条发言都已逐条匿名上报中心端，
+     这里只做纪念卡与提示（卡片文案里的「已汇入校园晴雨表」依然成立）。 */
+}
+function drawCard(msg, date, mood){
+  const cv=$('cardCanvas'); const ctx=cv.getContext('2d');
+  /* 底色：暖白 → 叠一层 22% 的心情色 → 再从上方压一层白色柔光。
+     这样整张卡都是浅底，不管当天是什么心情色，深色文字都够清楚。 */
+  ctx.globalAlpha=1; ctx.fillStyle=cssVar('--surface','#fff'); ctx.fillRect(0,0,600,360);
+  ctx.fillStyle=MOOD_COLOR[mood]||cssVar('--accent','#7e9a86');
+  ctx.globalAlpha=.22; ctx.fillRect(0,0,600,360);
+  const gw=ctx.createLinearGradient(0,0,0,360);
+  gw.addColorStop(0,'rgba(255,255,255,.9)'); gw.addColorStop(.55,'rgba(255,255,255,.45)'); gw.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.globalAlpha=1; ctx.fillStyle=gw; ctx.fillRect(0,0,600,360);
+  ctx.fillStyle=cssVar('--fg','#000'); ctx.font='600 26px "Source Han Serif SC","Noto Serif SC",serif';
+  ctx.fillText('树洞信箱',40,60);
+  ctx.font='400 19px "Source Han Serif SC","Noto Serif SC",serif';
+  wrapText(ctx, msg, 40, 150, 520, 32);
+  ctx.font='italic 16px "Source Han Serif SC","Noto Serif SC",serif';
+  ctx.fillText('—— 你今天，把自己好好说出来了。',40,260);
+  ctx.font='400 14px "Source Han Serif SC","Noto Serif SC",serif'; ctx.fillStyle=cssVar('--muted','#8a8178');
+  ctx.fillText(date+' · 风很快乐',40,320);
+  cv.style.display='block';
+}
+function wrapText(ctx,text,x,y,maxW,lh){
+  const chars=text.split(''); let line=''; let yy=y;
+  for(const c of chars){
+    if(ctx.measureText(line+c).width>maxW){ ctx.fillText(line,x,yy); line=c; yy+=lh; }
+    else line+=c;
+  }
+  ctx.fillText(line,x,yy);
+}
+function downloadCard(){
+  const cv=$('cardCanvas'); const a=document.createElement('a');
+  a.download='树洞信箱_'+localDateStr(new Date())+'.png';
+  a.href=cv.toDataURL('image/png'); a.click(); toast('已保存');
+}
+function closeCard(){$('cardMask').classList.remove('show');}
+
+/* ---------------- 数据闭环：匿名上报到校园晴雨表 ---------------- */
+/* 匿名 ID：本机生成、可轮换，绝不绑定学号/姓名；后端只拿它去重，无法反推个人 */
+function getAnonId(){
+  try{
+    let id = localStorage.getItem('shudong_anon');
+    if(!id){ id = 'u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem('shudong_anon', id); }
+    return id;
+  }catch(e){ return 'anon'; }
+}
+/* 取本次会话主导话题（脱敏关键词聚合后的最高项）。—— 这是「本机累积画像」用的，
+   跨会话跨天一直加，代表你长期在意的整体分布，学生端「这段时间，你在意的事」面板即用它。 */
+function topTopic(){
+  const t = loadTopics(); const keys = Object.keys(t);
+  if(!keys.length) return null;
+  return keys.reduce((a,b)=> t[b]>t[a]?b:a);
+}
+/* 话题上报优先级（仅用于「上报到校园晴雨表」时决定一句话的主导话题）。
+   一条消息可能同时命中多个话题，按此顺序取「最该被中心关注」的那一个：
+   身体(睡眠/食欲/疲惫等躯体信号，是情绪问题的强红灯) > 恋情 > 家庭 > 经济
+   > 人际 > 学业 > 就业 > 未来。
+   就业排在学业之后、未来之前：它比泛泛的「未来」更具体，且中心端有专属干预动作
+   （server.js TOPIC_ADVICE '就业' → 求职心理门诊 / 简历与面试辅导）。
+   想调整取谁，改这里即可；没命中任何关键词返回 null（后端记为「未分类」）。 */
+const TOPIC_PRIORITY = ['身体','恋情','家庭','经济','人际','学业','就业','未来'];
+/* 取「当前这条消息」命中的主导话题（用于上报到校园晴雨表）。
+   与 topTopic() 不同：topTopic 取本机累积话题表的历史最高项（画像用），
+   这里只针对一句话，多个命中按 TOPIC_PRIORITY 取优先级最高的那个，
+   没命中返回 null。这样中心端的「学生在意什么」才会反映这条消息聊了什么，
+   而不是被历史第一名吃掉（旧逻辑 all 写成人际）。 */
+function topicOfText(text){
+  if(!text) return null;
+  for(const k of TOPIC_PRIORITY){
+    const re = TOPIC_WORDS[k];
+    if(re && re.test(text)) return k;
+  }
+  return null;
+}
+/* 后端接口基地址：本页既可跑在根路径（localhost:3000/），也可挂在子路径下
+   （https://yaocoding.cn/shudong/）。两种情况下都能拼出正确的接口地址。 */
+function apiBase(){
+  const i = location.pathname.indexOf('/shudong');
+  return i === -1 ? '/' : location.pathname.slice(0, i) + '/shudong/';
+}
+/* 上报：只发「日期 + 情绪 + 话题」三元组，绝不发原文；失败不再静默，明确提示 */
+/* 上报一条心情到校园晴雨表（脱敏三元组，绝不发原文）。
+   silent=true 用于聊天中自动上报（静默，不打扰）；false 用于结束倾诉（带提示与纪念卡说明） */
+function reportToCenter(mood, topic, silent){
+  if(!mood) return;
+  const note = $('cardReportNote');
+  const payload = { anonId:getAnonId(), date:localDateStr(new Date()), mood, topic:topic||null };
+  fetch(apiBase()+'api/mood',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>{
+      if(silent) return;
+      if(r.ok){ toast('已匿名上报到校园晴雨表'); if(note) note.innerHTML='✓ 本次心情已匿名汇入校园晴雨表，帮心理中心了解整体趋势。'; }
+      else { if(note) note.innerHTML='⚠️ 后端未接收本次上报，心情仅留在本机。请确认服务已正常启动。'; toast('上报未成功，仅留本机'); }
+    })
+    .catch(()=>{ if(silent) return; if(note) note.innerHTML='⚠️ 未连接后端，本次心情仅留在本机，未上报校园晴雨表。请检查网络后重试。'; toast('未连接后端，仅留本机'); });
+}
+
+/* 检测后端是否在线：决定「这封信」能否真正送达校园晴雨表
+   状态收在标题标签旁的小圆点上（绿=已连接 / 橙=未连接），悬停看说明，不再占用版面 */
+function checkBackend(){
+  const dot = $('backendBeacon');
+  if(!dot) return;
+  const set = (cls, tip) => { dot.className = 'conn' + (cls ? ' ' + cls : ''); dot.title = tip; };
+  set('', '正在检测校园晴雨表连接…');
+  fetch(apiBase()+'api/health')
+    .then(r=>{ if(r.ok) set('on', '校园晴雨表：已连接，这封信会匿名送达心理中心'); else throw 0; })
+    .catch(()=> set('off', '校园晴雨表：未连接。这封信暂时只能留在本机'));
+}
+
+/* ============ 写给未来的信（纯本机，定时「投递」回来看） ============ */
+/* 关键设计：投递 ≠ 已读。
+   到期后每次打开页面都会把信重新放回聊天流，只有你亲手点「收进信箱」才算读掉。
+   早期版本是「投递即标记 opened」，一次刷新就永久消失——那正是信丢掉的根因。 */
+const FUTURE_KEY = 'shudong_future_letters';
+function loadFutureLetters(){
+  try{ const a=JSON.parse(localStorage.getItem(FUTURE_KEY)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; }
+}
+function saveFutureLetters(arr){ try{ localStorage.setItem(FUTURE_KEY, JSON.stringify(arr)); }catch(e){} }
+/* 已读只认 readAt；历史数据里 opened 只是旧字段，不代表你看过（所以会被重新送达） */
+function futureRead(x){ return !!x.readAt; }
+function futureDue(arr, now){ return arr.filter(x=>!futureRead(x) && x.due<=now); }
+/* 本地日期（不能用 toISOString：东八区凌晨会被算成前一天） */
+function localDateStr(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function todayStr(){ return localDateStr(new Date()); }
+
+function openFutureLetter(){
+  $('futureText').value='';
+  $('futureDate').value='';
+  document.querySelectorAll('#futurePreset .ghost').forEach(b=>b.classList.remove('on'));
+  renderFutureList();
+  $('futureMask').classList.add('show');
+}
+function closeFutureLetter(){ $('futureMask').classList.remove('show'); }
+function pickFutureDays(btn){
+  document.querySelectorAll('#futurePreset .ghost').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const d=new Date(); d.setDate(d.getDate()+parseInt(btn.dataset.days,10));
+  $('futureDate').value = localDateStr(d);
+}
+function saveFutureLetter(){
+  const text = $('futureText').value.trim();
+  const date = $('futureDate').value;
+  if(!text){ toast('先写点什么吧'); return; }
+  if(!date){ toast('选一个送达日期'); return; }
+  const due = new Date(date+'T00:00:00').getTime();
+  if(!(due > Date.now())){ toast('送达日期得是今天之后'); return; }
+  const arr = loadFutureLetters();
+  arr.push({ id:'f'+Date.now(), text, due, created:todayStr(), opened:false });
+  saveFutureLetters(arr);
+  toast('已封存，到那天树洞会把信送回给你 📨');
+  renderFutureList();
+  $('futureText').value='';
+}
+/* 聊天流里的「来自过去的信」卡片（正文用 textContent 写入，防注入） */
+function addFutureCard(x){
+  const d=document.createElement('div');
+  d.className='sys future-card'; d.dataset.fid=x.id;
+  const ic=document.createElement('span'); ic.className='sys-ic'; ic.innerHTML=iconEmoji('book');
+  const box=document.createElement('div'); box.className='fc-body';
+  const lb=document.createElement('b'); lb.className='sys-label'; lb.textContent='来自过去的信';
+  const tx=document.createElement('div'); tx.className='fc-text'; tx.textContent=x.text;
+  const ft=document.createElement('div'); ft.className='fc-foot';
+  const wh=document.createElement('span'); wh.className='fc-when';
+  wh.textContent = '封存于 '+(x.created||'—')+'，今天送到你手上';
+  const bt=document.createElement('button'); bt.type='button'; bt.className='fc-read'; bt.textContent='✓ 收进信箱';
+  bt.addEventListener('click', ()=>markFutureRead(x.id));
+  ft.appendChild(wh); ft.appendChild(bt);
+  box.appendChild(lb); box.appendChild(tx); box.appendChild(ft);
+  d.appendChild(ic); d.appendChild(box);
+  $('chat').appendChild(d); scrollChat();
+  const me=$('mailEmpty'); if(me) me.style.display='none';   /* 已经有信了，就不再显示「信箱还是空的」 */
+  return d;
+}
+/* 只有点「收进信箱」才真正标记已读：从此不再重复送达，可在弹层里回看 */
+function markFutureRead(id){
+  const arr = loadFutureLetters();
+  const x = arr.find(a=>a.id===id); if(!x) return;
+  if(!x.readAt){ x.readAt = Date.now(); saveFutureLetters(arr); }
+  const card = document.querySelector('.future-card[data-fid="'+id+'"]');
+  if(card){
+    card.classList.add('done');
+    const bt = card.querySelector('button.fc-read');
+    if(bt){ const sp=document.createElement('span'); sp.className='fc-read'; sp.textContent='✓ 已收进信箱'; bt.replaceWith(sp); }
+    /* 让「✓ 已收进信箱」停留一瞬做确认，随后卡片淡出并退出聊天区（不再一直占位） */
+    setTimeout(()=>{
+      if(!card.isConnected) return;
+      card.classList.add('leaving');
+      let gone=false;
+      const drop=()=>{ if(gone) return; gone=true; card.remove(); scrollChat(); };
+      card.addEventListener('transitionend', e=>{ if(e.target===card && e.propertyName==='opacity') drop(); });
+      setTimeout(drop, 600);   // 兜底：系统关动画/过渡未触发时也能移除
+    }, 420);
+  }
+  renderFutureList(); updateChatDot();
+  toast('已收进信箱 📮 想回看就点「写给未来的信」');
+}
+/* 投递：到期且未读的信，每次打开页面都重新放回聊天流（幂等，不重复插入） */
+function checkFutureLetters(){
+  const now = Date.now();
+  const arr = loadFutureLetters();
+  const due = futureDue(arr, now);
+  if(!due.length){ updateChatDot(); return 0; }
+  let fresh = 0, dirty = false;
+  due.forEach(x=>{
+    if(document.querySelector('.future-card[data-fid="'+x.id+'"]')) return;
+    addFutureCard(x);
+    if(!x.deliveredAt){ x.deliveredAt = now; dirty = true; }
+    fresh++;
+  });
+  if(dirty) saveFutureLetters(arr);
+  updateChatDot();
+  if(fresh>0 && !($('view-chat') && $('view-chat').classList.contains('active'))){
+    toast('📨 有一封写给未来的信到了，在「倾诉」里');
+  }
+  return fresh;
+}
+/* 未查收的信 → 聊天入口上的小红点（人已经在该页时就不显示） */
+function updateChatDot(){
+  const show = futureDue(loadFutureLetters(), Date.now()).length>0
+    && !!($('view-chat') && !$('view-chat').classList.contains('active'));
+  [$('tab-chat'), $('nav-chat')].forEach(el=>{ if(el) el.classList.toggle('has-dot', show); });
+}
+function renderFutureList(){
+  const box=$('futureList'); if(!box) return;
+  const now=Date.now();
+  const arr=loadFutureLetters();
+  if(!arr.length){ box.innerHTML='<div class="muted" style="font-size:13px;">还没有封存的信。</div>'; return; }
+  const arrived = futureDue(arr, now);
+  const soon    = arr.filter(x=>!futureRead(x) && x.due>now).sort((a,b)=>a.due-b.due);
+  const kept    = arr.filter(futureRead).sort((a,b)=>(b.readAt||0)-(a.readAt||0));
+  const h=[];
+  if(arrived.length){
+    h.push('<div class="future-sec">🔔 已送达 · 待查收（'+arrived.length+'）</div>');
+    arrived.forEach(x=>{
+      h.push('<div class="future-item arrived"><span>📬 今天到了</span>'+
+        '<button class="fi-read" onclick="markFutureRead(\''+x.id+'\')">收进信箱</button></div>');
+    });
+  }
+  if(soon.length){
+    h.push('<div class="future-sec">📨 在途（'+soon.length+'）</div>');
+    soon.forEach(x=>{
+      h.push('<div class="future-item"><span class="fi-when">送达：'+new Date(x.due).toLocaleDateString('zh-CN')+'</span>'+
+        '<button class="fi-del" onclick="delFutureLetter(\''+x.id+'\')">撤回</button></div>');
+    });
+  }
+  if(kept.length){
+    h.push('<div class="future-sec">🗄 已收下（'+kept.length+'，点开回看）</div>');
+    kept.forEach(x=>{
+      h.push('<details class="future-item"><summary>✓ '+new Date(x.readAt).toLocaleDateString('zh-CN')+' 收下</summary>'+
+        '<div class="fi-text"></div></details>');
+    });
+  }
+  box.innerHTML=h.join('');
+  /* 回看正文单独用 textContent 写入 */
+  const ds=box.querySelectorAll('details.future-item');
+  let i=0; kept.forEach(x=>{ const el=ds[i++]; const t=el&&el.querySelector('.fi-text'); if(t) t.textContent=x.text; });
+}
+function delFutureLetter(id){
+  saveFutureLetters(loadFutureLetters().filter(x=>x.id!==id));
+  renderFutureList();
+}
+
+/* 初始 */
+renderInsight();
+checkBackend();
+refreshKB(); // ① 知识库已在中心：学生端从中心派生，无需改动即可同步最新自护内容
+checkFutureLetters();   // 投递到期的「未来的信」
+/* 6) 空信箱 / 欢迎回来状态 */
+(function initMailEmpty(){
+  const me=$('mailEmpty'); if(!me) return;
+  const cnt=parseInt(localStorage.getItem('shudong_letter_count')||'0',10);
+  if(cnt>0){
+    me.innerHTML='<div class="big">📬</div><div>欢迎回来，树洞信箱里已经攒下 <b>'+cnt+'</b> 封你的信。</div><div>想说点什么，就再投一封吧。</div>';
+  }
+})();
+/* 记住上次停留的视图（本机） */
+try{
+  const lastView = localStorage.getItem('shudong_view');
+  if(lastView && lastView!=='chat') showView(lastView);
+}catch(e){}
+/* 挂着的页面也要能收到「到点」的信：切回来/重新聚焦/每分钟都查一次 */
+window.addEventListener('focus', ()=>checkFutureLetters());
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkFutureLetters(); });
+setInterval(checkFutureLetters, 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+{
+ "sage": {
+  "name": "苔痕 Sage",
+  "hex": {
+   "bg": "#F2F0EA",
+   "surface": "#FDFCF9",
+   "chrome": "#F8F6F2",
+   "fg": "#2D2823",
+   "muted": "#6F685F",
+   "border": "#E2DFD6",
+   "border-strong": "#CDC7BB",
+   "accent": "#517259",
+   "accent-hover": "#3F6047",
+   "accent-soft": "#DDEDE1",
+   "accent-ink": "#2F4B36",
+   "accent-line": "#A3B8A8",
+   "accent2": "#6E7459",
+   "warn": "#A37454",
+   "danger": "#A34949",
+   "progress": "#9B722C"
+  },
+  "contrast": {
+   "fg/bg": 15.13,
+   "muted/bg": 11.58,
+   "fg/surface": 19.17,
+   "accent-ink/accent-soft": 12.48,
+   "white/accent": 15.06,
+   "accent/bg": 11.21
+  }
+ },
+ "teal": {
+  "name": "青霭 Teal",
+  "hex": {
+   "bg": "#ECF2F5",
+   "surface": "#FAFDFE",
+   "chrome": "#F3F8FA",
+   "fg": "#22282E",
+   "muted": "#616B73",
+   "border": "#D8E1E6",
+   "border-strong": "#C1CDD3",
+   "accent": "#477270",
+   "accent-hover": "#345F5D",
+   "accent-soft": "#D8EDEB",
+   "accent-ink": "#244B4A",
+   "accent-line": "#A4BDBC",
+   "accent2": "#577585",
+   "warn": "#A67C5B",
+   "danger": "#A64C47",
+   "progress": "#437E81"
+  },
+  "contrast": {
+   "fg/bg": 15.54,
+   "muted/bg": 11.76,
+   "fg/surface": 19.36,
+   "accent-ink/accent-soft": 12.33,
+   "white/accent": 15.02,
+   "accent/bg": 11.46
+  }
+ },
+ "mauve": {
+  "name": "藕荷 Mauve",
+  "hex": {
+   "bg": "#F6EEEE",
+   "surface": "#FFFBFB",
+   "chrome": "#FAF5F5",
+   "fg": "#30282D",
+   "muted": "#73676E",
+   "border": "#E8DDDD",
+   "border-strong": "#D4C6C5",
+   "accent": "#7F6985",
+   "accent-hover": "#6D5772",
+   "accent-soft": "#F0E5F3",
+   "accent-ink": "#534057",
+   "accent-line": "#C6B8C9",
+   "accent2": "#627966",
+   "warn": "#A37759",
+   "danger": "#9F4C4F",
+   "progress": "#956991"
+  },
+  "contrast": {
+   "fg/bg": 15.1,
+   "muted/bg": 11.39,
+   "fg/surface": 19.06,
+   "accent-ink/accent-soft": 12.21,
+   "white/accent": 14.23,
+   "accent/bg": 10.6
+  }
+ },
+ "ink": {
+  "name": "宣纸 Ink",
+  "hex": {
+   "bg": "#F3F2EF",
+   "surface": "#FEFDFC",
+   "chrome": "#F8F8F5",
+   "fg": "#272420",
+   "muted": "#68645E",
+   "border": "#E1E0DA",
+   "border-strong": "#CCCAC1",
+   "accent": "#80523D",
+   "accent-hover": "#6D402C",
+   "accent-soft": "#F8E7DF",
+   "accent-ink": "#593423",
+   "accent-line": "#D3B9AC",
+   "accent2": "#45676D",
+   "warn": "#A47E59",
+   "danger": "#9A4844",
+   "progress": "#6D774F"
+  },
+  "contrast": {
+   "fg/bg": 15.93,
+   "muted/bg": 12.58,
+   "fg/surface": 19.78,
+   "accent-ink/accent-soft": 13.03,
+   "white/accent": 16.41,
+   "accent/bg": 12.8
+  }
+ },
+ "sand": {
+  "name": "暖砂 Sand",
+  "hex": {
+   "bg": "#F4EFE8",
+   "surface": "#FEFCF8",
+   "chrome": "#F8F5F1",
+   "fg": "#2F2923",
+   "muted": "#716960",
+   "border": "#E3DED5",
+   "border-strong": "#CFC6BA",
+   "accent": "#686E51",
+   "accent-hover": "#555B3E",
+   "accent-soft": "#E7EBDA",
+   "accent-ink": "#43482E",
+   "accent-line": "#B4B9A3",
+   "accent2": "#8E715A",
+   "warn": "#A27757",
+   "danger": "#A24C4C",
+   "progress": "#8F793C"
+  },
+  "contrast": {
+   "fg/bg": 14.98,
+   "muted/bg": 11.34,
+   "fg/surface": 19.12,
+   "accent-ink/accent-soft": 12.43,
+   "white/accent": 15.17,
+   "accent/bg": 11.21
+  }
+ },
+ "_moods": {
+  "hope": "#A5A981",
+  "warm": "#B8977C",
+  "calm": "#7C9AAB",
+  "tired": "#A29780",
+  "anxious": "#A4735D",
+  "low": "#847B98",
+  "breakdown": "#92645F",
+  "numb": "#877384"
+ }
+}

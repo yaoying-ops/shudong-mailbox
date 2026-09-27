@@ -1,0 +1,31 @@
+# 依赖
+node_modules/
+
+# 运行数据库（含真实数据，勿上传）
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# 密钥与口令（本地自行保管，绝不入库）
+keys.json
+口令.txt
+
+# 日志与临时文件
+*.log
+server_err.txt
+server_out.txt
+.DS_Store
+
+# 微信开发者工具私有配置
+project.private.config.json
+
+# 构建产物
+dist/
+build/
+
+# 备份与压缩包
+备份*/
+*_备份*/
+*.zip
+*.7z
+*.rar

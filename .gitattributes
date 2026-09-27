@@ -1,0 +1,12 @@
+# 换行符策略：仓库内统一 LF，检出时按扩展名固定
+# 目的：避免 Windows 检出把 shell 脚本变成 CRLF 而在 Linux 上报 "bad interpreter"
+
+* text=auto
+
+# 必须 CRLF：Windows 批处理与 HTML（cmd.exe / 浏览器解析器对换行敏感）
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.html text eol=crlf
+
+# 必须 LF：Unix shell 脚本
+*.sh   text eol=lf

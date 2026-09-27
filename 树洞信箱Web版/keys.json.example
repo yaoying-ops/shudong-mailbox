@@ -1,0 +1,7 @@
+{
+  "keys": [
+    { "provider": "deepseek", "key": "sk-在此填入DeepSeek对话Key" },
+    { "provider": "glm", "key": "在此填入智谱GLM语音识别Key" }
+  ],
+  "quotaPerDay": 100
+}
