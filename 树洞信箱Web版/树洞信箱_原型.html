@@ -1609,7 +1609,7 @@ function localComfort(userText, agent){
 }
 
 /* ============ 小测：PHQ-9 + GAD-7 标准化量表自测 ============
-   设计依据：MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025, MIT License）采用同构四级分级；
+   设计依据：分级阈值采用 PHQ-9 / GAD-7 临床标准 cutoff，四级命名参考 MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025）；
    题目为公开心理工具（PHQ-9 / GAD-7 标准量表），无版权。
    关键：前端计分，无 API Key 也能完整跑完；结果仅分级脱敏上报中心端。 */
 const PHQ9_Q = [
@@ -1729,7 +1729,7 @@ async function finishQuiz(){
     </div>
     <p class="quiz-disc">这不是诊断，只是我们一起看到的。分级参考 PHQ-9 / GAD-7 标准量表。</p>
     <p class="quiz-guid">${guidance}</p>
-    <p class="quiz-disc">量表分级参考 MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025, MIT License）。</p>
+    <p class="quiz-disc">量表分级阈值参考 PHQ-9 / GAD-7 临床标准 cutoff，分级命名参考 MMPsy 多模态心理评估数据集（Qin et al., AAAI-2025）。</p>
     ${escalate?`
     <div class="quiz-contact" id="quizContact">
       <div class="qc-title">需要心理老师主动联系你吗？</div>
