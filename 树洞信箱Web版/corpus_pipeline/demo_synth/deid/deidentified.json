@@ -1,0 +1,2394 @@
+[
+  {
+    "id": "s0000",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。（我叫<NAME_b56d26>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0001",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0002",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0003",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。（2024年6月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0004",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。（我叫<NAME_b56d26>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0005",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。（2023年1月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0006",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0007",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0008",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（2021年7月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0009",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（我叫<NAME_c35fab>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0010",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0011",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（我叫<NAME_70f336>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0012",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "同学都好厉害，我觉得自己什么都学不会。（我叫<NAME_83d5d2>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0013",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。（2023年10月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0014",
+    "topic_hint": "就业/未来",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我学的专业好像没什么用，很迷茫。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "面试被拒了好多次，我不敢再投了。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "秋招一个offer都没有，我是不是很失败。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "看到同学都签了，我晚上睡不着。（我叫<NAME_70f336>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0015",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（2024年3月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0016",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。（我从浙江省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0017",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我帮了别人很多，却没人记得我。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0018",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（我叫<NAME_c35fab>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0019",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0020",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。（2024年12月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0021",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我帮了别人很多，却没人记得我。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0022",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（2023年5月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（2023年2月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0023",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。（我叫<NAME_70f336>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "爸妈觉得我必须考上985，可我真的很累。（2024年10月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。（2024年5月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "同学都好厉害，我觉得自己什么都学不会。（我叫<NAME_a3f87d>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0024",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0025",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "同学都好厉害，我觉得自己什么都学不会。（2023年7月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "爸妈觉得我必须考上985，可我真的很累。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0026",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "同学都好厉害，我觉得自己什么都学不会。（我从浙江省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "爸妈觉得我必须考上985，可我真的很累。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。（2021年11月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0027",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。（2023年1月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0028",
+    "topic_hint": "自我认同/意义感",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我很讨厌现在的自己。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我不知道自己是谁，也不知道想要什么。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "努力到底为了什么，我觉得一切都没意义。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我总觉得自己是多余的。（我从浙江省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0029",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "爸妈觉得我必须考上985，可我真的很累。（我叫<NAME_b56d26>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0030",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我帮了别人很多，却没人记得我。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。（我叫<NAME_98521e>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。（我从浙江省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0031",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0032",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0033",
+    "topic_hint": "自我认同/意义感",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "努力到底为了什么，我觉得一切都没意义。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我很讨厌现在的自己。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0034",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0035",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "每次回家都要吵架，我越来越不想回去了。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0036",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0037",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "朋友好像都比我过得好，我有点嫉妒又讨厌这样的自己。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我帮了别人很多，却没人记得我。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0038",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。（我叫<NAME_c35fab>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。（我叫<NAME_bf0562>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0039",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。（我从浙江省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0040",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我爸从来不听我说话，只讲他的道理。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。（2024年12月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0041",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0042",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0043",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。（我从湖北省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。（我叫<NAME_83d5d2>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0044",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0045",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。（我从湖北省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（我从江苏省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0046",
+    "topic_hint": "自我认同/意义感",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我很讨厌现在的自己。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我总觉得自己是多余的。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我不知道自己是谁，也不知道想要什么。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "努力到底为了什么，我觉得一切都没意义。（我叫<NAME_83d5d2>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0047",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我最近总是莫名想哭，什么都不想做。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0048",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我总怕他不够喜欢我，一遍遍看他手机。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0049",
+    "topic_hint": "就业/未来",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "面试被拒了好多次，我不敢再投了。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我学的专业好像没什么用，很迷茫。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "秋招一个offer都没有，我是不是很失败。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "看到同学都签了，我晚上睡不着。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0050",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（2022年1月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0051",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0052",
+    "topic_hint": "人际/同辈",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我帮了别人很多，却没人记得我。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "宿舍关系很差，我回去都觉得压抑。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我在社团里像个透明人，没人理我。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0053",
+    "topic_hint": "学业/考研",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "同学都好厉害，我觉得自己什么都学不会。（我叫<NAME_bf0562>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "老师，我最近复习不进去，一想到考研就心慌，怕考不上。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我已经连续三周每天只睡五个小时，刷题刷到麻木了。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "爸妈觉得我必须考上985，可我真的很累。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "临床医学",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0054",
+    "topic_hint": "情绪/抑郁焦虑",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "心慌得厉害，去医院说是焦虑症。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我睡不好，白天又困，整个人是空的。（我叫<NAME_bf0562>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我好像失去了开心的能力。（<STUDENT_ID>，在<SCHOOL>）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "机械",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0055",
+    "topic_hint": "家庭/父母期待",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我妈总是拿我跟别人家孩子比，我好难受。（2024年1月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "家里希望我考公务员，可我想做设计，我不敢说。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0056",
+    "topic_hint": "自我认同/意义感",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我很讨厌现在的自己。（我叫<NAME_a3f87d>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "努力到底为了什么，我觉得一切都没意义。（我从湖北省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我总觉得自己是多余的。（<WECHAT>）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0057",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。（我从四川省来的）"
+      },
+      {
+        "role": "assistant",
+        "text": "慢慢来，不用急着说清楚。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "男"
+    }
+  },
+  {
+    "id": "s0058",
+    "topic_hint": "亲密关系/失恋",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "异地恋好累，我不知道还能撑多久。"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "我还是忘不掉她，看到她的动态就难受。（2024年12月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      },
+      {
+        "role": "user",
+        "text": "我们在一起三年，他昨天说分手，我一夜没睡。"
+      },
+      {
+        "role": "assistant",
+        "text": "你现在安全吗？我很在意你的状态。"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "计算机",
+      "gender": "女"
+    }
+  },
+  {
+    "id": "s0059",
+    "topic_hint": "危机（自伤/自杀）",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我觉得撑不住了，活不下去。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我真的很想消失，睡着了就不想再醒来。（我叫<NAME_b56d26>，手机<PHONE>）"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你愿意告诉我这些，我听到了。"
+      },
+      {
+        "role": "user",
+        "text": "我最近总想着自残，看到刀就控制不住。（2023年3月开始这样）"
+      },
+      {
+        "role": "assistant",
+        "text": "这种感觉确实很难熬，你并不孤单。"
+      },
+      {
+        "role": "user",
+        "text": "有时候我会想，如果我不在了，是不是大家都轻松了。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在，你愿意多说一点吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "school": "<SCHOOL>",
+      "grade": "<GRADE>",
+      "major": "中文",
+      "gender": "女"
+    }
+  }
+]

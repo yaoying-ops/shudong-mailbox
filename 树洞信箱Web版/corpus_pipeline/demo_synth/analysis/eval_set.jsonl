@@ -1,0 +1,43 @@
+{"id": "s0003", "score": 30, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0016", "score": 30, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0024", "score": 30, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0043", "score": 30, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0059", "score": 30, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0041", "score": 28, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"]}, "tag": "crisis"}
+{"id": "s0057", "score": 28, "level": "高", "hits": {"T1_直接风险": ["自残", "活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"]}, "tag": "crisis"}
+{"id": "s0036", "score": 20, "level": "高", "hits": {"T1_直接风险": ["活不下去"], "T2_重度痛苦": ["撑不住", "活不下去"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0050", "score": 12, "level": "高", "hits": {"T1_直接风险": ["自残"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0051", "score": 12, "level": "高", "hits": {"T1_直接风险": ["自残"], "T3_被动/隐匿": ["想消失", "消失"]}, "tag": "crisis"}
+{"id": "s0028", "score": 4, "level": "中", "hits": {"T2_重度痛苦": ["没意义"]}, "tag": "crisis"}
+{"id": "s0033", "score": 4, "level": "中", "hits": {"T2_重度痛苦": ["没意义"]}, "tag": "crisis"}
+{"id": "s0046", "score": 4, "level": "中", "hits": {"T2_重度痛苦": ["没意义"]}, "tag": "crisis"}
+{"id": "s0056", "score": 4, "level": "中", "hits": {"T2_重度痛苦": ["没意义"]}, "tag": "crisis"}
+{"id": "s0003", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0016", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0024", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0036", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0038", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0044", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0048", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0050", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0051", "start": 0.0, "end": -0.5, "delta": -0.5, "label": "明显走低(需关注)", "tag": "emotion_decline"}
+{"id": "s0000", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0001", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0002", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0004", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0006", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0007", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0008", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0009", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0010", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0011", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0012", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0013", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0014", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0015", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0017", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0018", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0019", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0020", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0021", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}
+{"id": "s0022", "start": 0.0, "end": 0.0, "delta": 0.0, "label": "平稳", "tag": "baseline"}

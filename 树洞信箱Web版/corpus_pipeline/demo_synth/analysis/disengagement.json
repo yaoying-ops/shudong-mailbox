@@ -1,0 +1,7 @@
+{
+  "records": 60,
+  "short_reply_after_long_assistant": 0,
+  "abrupt_user_end": 0,
+  "repeated_acknowledgement": 0,
+  "trigger_hint": "以上三处即为『呼吸放松卡片』候选触发点；建议按其分布设阈值而非定时弹。"
+}

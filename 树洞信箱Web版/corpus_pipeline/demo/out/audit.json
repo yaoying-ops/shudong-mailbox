@@ -1,0 +1,35 @@
+{
+  "input": "D:\\vibe coding\\学员学习\\小程序\\黑客松\\corpus_pipeline\\demo\\sample_corpus.json",
+  "records": 2,
+  "format": "json",
+  "salt_fingerprint": "4a2a22d8cd3a",
+  "replacement_counts": {
+    "name_heuristic": 2,
+    "meta_name": 2,
+    "phone": 1,
+    "school": 1,
+    "age_generalized": 1,
+    "wechat_id": 1,
+    "region_generalized": 1,
+    "city_removed": 1,
+    "meta_student_id": 1,
+    "meta_phone": 1,
+    "meta_school": 1,
+    "date_generalized": 1,
+    "meta_email": 1
+  },
+  "samples_masked": {
+    "phone": [
+      "138*******8"
+    ],
+    "name_heuristic": [
+      "李明",
+      "王芳"
+    ],
+    "wechat_id": [
+      "微信是*******9"
+    ]
+  },
+  "high_pii_density_records": [],
+  "note": "审计文件同样只含遮蔽样本，不保留任何原始 PII；请勿将本文件与原始语料同目录公开。"
+}

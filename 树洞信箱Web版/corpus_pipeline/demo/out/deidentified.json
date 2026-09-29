@@ -1,0 +1,42 @@
+[
+  {
+    "id": "u1",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "老师您好，我叫<NAME_c35fab>，今年20-24岁，在<SCHOOL>读书。我最近很累，不知道怎么办。我的手机<PHONE>。"
+      },
+      {
+        "role": "assistant",
+        "text": "我在。你愿意说说最近发生了什么吗？"
+      },
+      {
+        "role": "user",
+        "text": "我从江苏省来的，家里都指望我考研。我<WECHAT>，可以加你吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "student_id": "<STUDENT_ID>",
+      "phone": "<PHONE>",
+      "school": "<SCHOOL>"
+    }
+  },
+  {
+    "id": "u2",
+    "conversation": [
+      {
+        "role": "user",
+        "text": "我是<NAME_b56d26>，2021年3月开始失眠，最近总想消失，觉得活着没意思。"
+      },
+      {
+        "role": "assistant",
+        "text": "谢谢你告诉我这些。你现在安全吗？"
+      }
+    ],
+    "metadata": {
+      "name": "<NAME>",
+      "email": "<EMAIL>"
+    }
+  }
+]
