@@ -1,5 +1,5 @@
 {
-  "input": "D:\\vibe coding\\学员学习\\小程序\\黑客松\\corpus_pipeline\\demo_synth\\corpus.json",
+  "input": "demo_synth/corpus.json",
   "records": 60,
   "format": "json",
   "salt_fingerprint": "4a2a22d8cd3a",

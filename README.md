@@ -152,7 +152,7 @@ node server.js
 ├── LICENSE                        # MIT 开源协议
 ├── README.md
 ├── CONTRIBUTING.md                # 贡献指南：本地开发约定、提交前检查、隐私红线
-├── API.md                         # 26 个接口端点一览（路径 / 鉴权 / 说明）
+├── API.md                         # 27 个接口端点一览（路径 / 鉴权 / 说明）
 ├── .gitignore
 ├── tools/                         # 工程脚本（零依赖，不参与运行）
 │   ├── README.md                  #   脚本用途与设计说明
@@ -172,6 +172,12 @@ node server.js
     ├── 树洞信箱_知识库_Yalom.md     # 知识库条目全文（可读版）
     ├── palette_calc.py            # 配色计算小工具（辅助开发）
     ├── palette_out.json
+    ├── corpus_pipeline/           # 语料脱敏与分析流水线（离线工具，不参与运行）
+    │   ├── deidentify.py          #   脱敏：手机 / 身份证 / 邮箱 / 银行卡 / 微信 / 学号等规则替换，产出 audit.json 审计留痕
+    │   ├── analyze.py             #   9 阶段语料分析：基础统计、话题、危机演进、回归评估等
+    │   ├── make_synthetic.py      #   生成合成语料用于流水线自检（可复现，不含真实数据）
+    │   ├── 脱敏流水线设计.md / 分析方案.md
+    │   └── demo_synth/            #   合成语料的端到端演示输出（summary / risk_flags / report 等）
     └── server/
         ├── package.json
         ├── server.js              # 入口：静态托管 + 27 个 API + 鉴权 + 预警聚合
