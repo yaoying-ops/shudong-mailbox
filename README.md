@@ -147,6 +147,8 @@ node server.js
 
 ## 三、目录结构
 
+> 下列为仓库**主要**结构示意；完整清单共 **50** 个文件（另含 `docs/screenshots/` 4 张界面截图、`corpus_pipeline/demo*` 系列产物、`.gitattributes`、`server/package-lock.json` 等，未逐一展开）。
+
 ```
 .
 ├── LICENSE                        # MIT 开源协议
@@ -163,7 +165,9 @@ node server.js
 │   ├── repro_handoff.js           #   跨 Agent 历史污染三臂对照
 │   ├── verify_handoff.js          #   交棒修复端到端验证
 │   └── e2e_zi_newline.js          #   小咨输出空行压缩验证
-└── 树洞信箱Web版/
+├── docs/                          # 界面截图（学生端对话 / 中心端看板等，供评审快速预览）
+│   └── screenshots/               #   center-alerts.png / center-board.png / student-chat.png / student-insight.png
+├── 树洞信箱Web版/
     ├── keys.json.example          # 大模型 Key 配置模板（复制为 keys.json 后填值）
     ├── 启动树洞信箱.bat            # Windows 一键启动
     ├── 启动.sh                    # Linux / macOS 一键启动
